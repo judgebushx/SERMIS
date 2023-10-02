@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Show Beneficiary</title>
+    <style>
+        body {
+             font-family: Calibri, sans-serif;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        th {
+            background-color: #ccc;
+        }
+        h1 {
+            background-color: rgb(69, 122, 192);
+        }
+        .status {
+            font-weight: bold;
+        }
+        .enrolled {
+            color: green;
+        }
+        .exited {
+            color: red;
+        }
+        .action-buttons a {
+            margin-right: 5px;
+            text-decoration: none;
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            color: #333;
+        }
+        
+        .action-buttons a:hover {
+            background-color: #f2f2f2;
+        }
+        .create-button {
+            background-color: #539f38;
+            color: #669071;
+        }
+        .update-button {
+            background-color: #2196f3;
+            color: #fff;
+        }
+        
+        .delete-button {
+            background-color: #f44336;
+            color: #fff;
+        }
+        .semc_create-button1 {
+            background-color: #4caf50;
+            color: #fff;
+        }
+        .semc_create-button2 {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 7px 8px;
+            border-radius: 5px;
+        }
+        .beneficiary_detail-button {
+            background-color: #5da166;
+            color: #fff;
+        }
+        h1 {
+          font-size: 25px;
+        }
+      
+        h2 {
+          font-size: 18px;
+          text-align: center; 
+        }
+
+
+
+
+
+
+
+
+
+
+        .gauge-container {
+            width: 200px;
+            height: 200px;
+            position: relative;
+        }
+
+        .gauge-circle {
+            fill: none;
+            stroke: #ccc;
+            stroke-width: 10;
+        }
+
+        .gauge-fill {
+            fill: #3498db; /* Change the color as needed */
+            transition: stroke-dasharray 0.5s; /* Add a transition for a smooth fill effect */
+        }
+
+        .gauge-text {
+            font-size: 24px;
+            text-anchor: middle;
+            dominant-baseline: middle;
+        }
+
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center; margin-top: 2em; color: rgb(12, 12, 12);">Beneficiary Details for <span style="color: white;">{{ beneficiary.name_of_household_head }}</span></h1><span style="color:rgb(241, 244, 242)">{{ person.Client_Name }}</span></h1>
+    <table>
+        <tr>
+            <th>Group name</th>
+            <th>Nationality</th>
+            <th>Region</th>
+            <th>District</th>
+            <th>Settlement</th>
+            <th>Household ID</th>
+            <th>Name of Household head</th>
+            <th>Household head phone number</th>>
+            <th>Participant gender</th>
+            <th>Participant age</th>
+            <th>Relationship to head of household</th>
+            <th>Gender of head of household</th>
+            <th>Age of head of household</th>
+            <th>Disability of head of household</th>            
+            <th>Marital status </th>
+            <th>Educational level</th>
+            <th>Religion</th>
+            <th>Household own any livestock</th>
+        </tr>
+        <tr>
+            <td>{{ beneficiary.group }}</td>
+            <td>{{ beneficiary.nationality }}</td>
+            <td>{{ beneficiary.region }}</td>
+            <td>{{ beneficiary.district }}</td>
+            <td>{{ beneficiary.settlement }}</td>
+            <td>{{ beneficiary.household_id }}</td>
+            <td>{{ beneficiary.name_of_household_head }}</td>
+            <td>{{ beneficiary.household_head_phone }}</td>
+            <td>{{ beneficiary.gender_of_participant }}</td>
+            <td>{{ beneficiary.participant_age }}</td>
+
+            <td>{{ beneficiary.relationship_with_household_head }}</td>
+            <td>{{ beneficiary.gender_hhh }}</td>
+            <td>{{ beneficiary.age_of_hhh }}</td>
+            <td>{{ beneficiary.disablity_of_hhh }}</td>
+            <td>{{ beneficiary.marital_status }}</td>
+            <td>{{ beneficiary.education_level }}</td>
+            <td>{{ beneficiary.religion }}</td>
+            <td>{{ beneficiary.household_own_any_livestock }}</td>
+ 
+
+           
+        </tr>
+    </table>
+
+<p>
+<td>
+    <!-- Add more fields as needed -->
+    <tr class="action-buttons" style="display: flex; font-size: 0.7rem;">
+    <a href="{% url 'beneficiary_update' beneficiary.pk %}"  data-toggle="tooltip" title="Edit this beneficiary">Edit</a>
+
+    <a href="{% url 'beneficiary_delete' beneficiary.pk %}" data-toggle="tooltip" title="Delete this beneficiary">Delete</a>
+    <a href="{% url 'group_detail' beneficiary.group.pk %}" >Back to Group Details</a>
+  </tr>
+</td>
+
+</p>
+
+
+
+
+
+
+    <h2>SEMC Coaching records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</span></h1></h2>
+    {% if semcmentoringcoaching_details %}
+    <table>
+      <tr>
+        <th>Meeting date</th>
+        <th>Provider</th>
+        <th>Group name</th>
+        <th>Beneficiary</th>
+        <th>Region</th>
+        <th>District</th>
+        <th>Settlement</th>
+        <th>Mentor name</th>
+        <th>Topic of discussion</th>
+        <th>Component</th>
+        <th>Action buttons</th>
+      </tr>
+    
+      {% for semcmentoringcoaching_detail in semcmentoringcoaching_details %}
+      <tr>
+        <td>{{ semcmentoringcoaching_detail.meeting_date }}</td>
+        <td>{{ semcmentoringcoaching_detail.provider }}</td>
+        <td>{{ semcmentoringcoaching_detail.group.group_name }}</td>
+        <td>{{ semcmentoringcoaching_detail.beneficiary }}</td>
+        <td>{{ semcmentoringcoaching_detail.region }}</td>
+        <td>{{ semcmentoringcoaching_detail.district }}</td>
+        <td>{{ semcmentoringcoaching_detail.settlement }}</td>
+        <td>{{ semcmentoringcoaching_detail.mentor_name }}</td>
+        <td>{{ semcmentoringcoaching_detail.topic_of_discussion }}</td>
+        <td>{{ semcmentoringcoaching_detail.component }}</td>
+        <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+          <a href="{% url 'semc_mentoring_coaching_update' semcmentoringcoaching_detail.pk %}" class="update-button">Update</a>
+          <a href="{% url 'semc_mentoring_coaching_delete' semcmentoringcoaching_detail.pk %}" class="delete-button">Delete</a>
+          <a href="{% url 'semc_mentoring_coaching_create' beneficiary.pk %}"  class="semc_create-button">Add SEMC Coaching Record</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>No SEMC Coaching Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+    <a href="{% url 'semc_mentoring_coaching_create' beneficiary.pk %}"  class="semc_create-button2">Add SEMC Coaching Record</a>
+    {% endif %}
+  
+    
+</ul>
+
+<!-- ... (rest of the code) ... -->
+
+
+<h2>SEMC Community Participation records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if semccommunityparticipation_details %}
+<table>
+  <tr>
+    <th>Meeting date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>Topic of discussion</th>
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for semccommunityparticipation_detail in semccommunityparticipation_details %}
+  <tr>
+    <td>{{ semccommunityparticipation_detail.meeting_date }}</td>
+    <td>{{ semccommunityparticipation_detail.provider }}</td>
+    <td>{{ semccommunityparticipation_detail.group.group_name }}</td>
+    <td>{{ semccommunityparticipation_detail.beneficiary }}</td>
+    <td>{{ semccommunityparticipation_detail.region }}</td>
+    <td>{{ semccommunityparticipation_detail.district }}</td>
+    <td>{{ semccommunityparticipation_detail.settlement }}</td>
+    <td>{{ semccommunityparticipation_detail.topic_of_discussion }}</td>
+    <td>{{ semccommunityparticipation_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'semccommunityparticipation_update' semccommunityparticipation_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'semccommunityparticipation_delete' semccommunityparticipation_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'semccommunityparticipation_create' beneficiary.pk %}"  class="semc_create-button">Add SEMC Community Participation Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No SEMC Community Participation Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'semccommunityparticipation_create' beneficiary.pk %}"  class="semc_create-button2">Add SEMC Community Participation Record</a>
+{% endif %}
+
+
+</ul>
+
+
+
+<h2>SEMC SBCC records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}"</h2>
+{% if semcsbcc_details %}
+<table>
+  <tr>
+    <th>Meeting date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>Topic of discussion</th>
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for semcsbcc_detail in semcsbcc_details %}
+  <tr>
+    <td>{{ semcsbcc_detail.meeting_date }}</td>
+    <td>{{ semcsbcc_detail.provider }}</td>
+    <td>{{ semcsbcc_detail.group.group_name }}</td>
+    <td>{{ semcsbcc_detail.beneficiary }}</td>
+    <td>{{ semcsbcc_detail.region }}</td>
+    <td>{{ semcsbcc_detail.district }}</td>
+    <td>{{ semcsbcc_detail.settlement }}</td>
+    <td>{{ semcsbcc_detail.topic_of_discussion }}</td>
+    <td>{{ semcsbcc_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'semcsbcc_update' semcsbcc_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'semcsbcc_delete' semcsbcc_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'semcsbcc_create' beneficiary.pk %}"  class="semc_create-button">Add SEMC SBCC Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No SEMC SBCC  Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'semcsbcc_create' beneficiary.pk %}"  class="semc_create-button2">Add SEMC SBCC Record</a>
+{% endif %}
+
+
+</ul>
+<h2>SP GFA records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if spgfa_details %}
+<table>
+  <tr>
+    <th>Disbursement date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>Household Beneficiary </th>
+    <th>Transfer value</th>
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for spgfa_detail in spgfa_details %}
+  <tr>
+    <td>{{ spgfa_detail.disbursement_date }}</td>
+    <td>{{ spgfa_detail.provider }}</td>
+    <td>{{ spgfa_detail.group.group_name }}</td>
+    <td>{{ spgfa_detail.beneficiary }}</td>
+    <td>{{ spgfa_detail.region }}</td>
+    <td>{{ spgfa_detail.district }}</td>
+    <td>{{ spgfa_detail.settlement }}</td>
+    <td>{{ spgfa_detail.household_beneficiary_name }}</td>
+    <td>{{spgfa_detail.transfer_value}}</td>
+    <td>{{ spgfa_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'spgfa_update' spgfa_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'spgfa_delete' spgfa_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'spgfa_create' beneficiary.pk %}"  class="semc_create-button">Add SP GFA Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No SP GFA  Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'spgfa_create' beneficiary.pk %}"  class="semc_create-button2">Add SP GFA Record</a>
+{% endif %}
+
+
+</ul>
+
+
+<h2>SP Nutricash records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if spnutricash_details %}
+<table>
+  <tr>
+    <th>Disbursement date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>Household Beneficiary </th>
+    <th>Transfer value</th>
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for spnutricash_detail in spnutricash_details %}
+  <tr>
+    <td>{{ spnutricash_detail.disbursement_date }}</td>
+    <td>{{ spnutricash_detail.provider }}</td>
+    <td>{{ spnutricash_detail.group.group_name }}</td>
+    <td>{{ spnutricash_detail.beneficiary }}</td>
+    <td>{{ spnutricash_detail.region }}</td>
+    <td>{{ spnutricash_detail.district }}</td>
+    <td>{{ spnutricash_detail.settlement }}</td>
+    <td>{{ spnutricash_detail.household_beneficiary_name }}</td>    
+    <td>{{spnutricash_detail.transfer_value}}</td>
+    <td>{{ spnutricash_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'spnutricash_update' spnutricash_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'spnutricash_delete' spnutricash_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'spnutricash_create' beneficiary.pk %}"  class="semc_create-button">Add SP Nutricash Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No SP Nutricash Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'spnutricash_create' beneficiary.pk %}"  class="semc_create-button2">Add SP Nutricash Record</a>
+{% endif %}
+
+
+<h2>SP SAGE records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if spsage_details %}
+<table>
+  <tr>
+    <th>Disbursement date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>Household Beneficiary </th>
+    <th>Transfer value</th>
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for spsage_detail in spsage_details %}
+  <tr>
+    <td>{{ spsage_detail.disbursement_date }}</td>
+    <td>{{ spsage_detail.provider }}</td>
+    <td>{{ spsage_detail.group.group_name }}</td>
+    <td>{{ spsage_detail.beneficiary }}</td>
+    <td>{{ spsage_detail.region }}</td>
+    <td>{{ spsage_detail.district }}</td>
+    <td>{{ spsage_detail.settlement }}</td>
+    <td>{{ spsage_detail.household_beneficiary_name }}</td>    
+    <td>{{spsage_detail.transfer_value}}</td>
+    <td>{{ spsage_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'spsage_update' spsage_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'spsage_delete' spsage_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'spsage_create' beneficiary.pk %}"  class="semc_create-button">Add SP SAGE Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No SP SAGE Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'spsage_create' beneficiary.pk %}"  class="semc_create-button2">Add SP SAGE Record</a>
+{% endif %}
+
+
+<h2>LPD On-Farm records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if lpdonfarm_details %}
+<table>
+  <tr>
+    <th>Value date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>On-Farm component received </th>  
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for lpdonfarm_detail in lpdonfarm_details %}
+  <tr>
+    <td>{{ lpdonfarm_detail.value_date }}</td>
+    <td>{{ lpdonfarm_detail.provider }}</td>
+    <td>{{ lpdonfarm_detail.group.group_name }}</td>
+    <td>{{ lpdonfarm_detail.beneficiary }}</td>
+    <td>{{ lpdonfarm_detail.region }}</td>
+    <td>{{ lpdonfarm_detail.district }}</td>
+    <td>{{ lpdonfarm_detail.settlement }}</td>
+    <td>{{ lpdonfarm_detail.Onfarm_component_received }}</td>
+    <td>{{ lpdonfarm_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'lpdonfarm_update' lpdonfarm_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'lpdonfarm_delete' lpdonfarm_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'lpdonfarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD On-Farm Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No LPD On-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'lpdonfarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD On-Farm Record</a>
+{% endif %}
+
+<h2>LPD Off-Farm records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if lpdofffarm_details %}
+<table>
+  <tr>
+    <th>Value date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>Off-Farm Software component received </th>  
+    <th>Off-Farm Hardware component received </th>  
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for lpdofffarm_detail in lpdofffarm_details %}
+  <tr>
+    <td>{{ lpdofffarm_detail.value_date }}</td>
+    <td>{{ lpdofffarm_detail.provider }}</td>
+    <td>{{ lpdofffarm_detail.group.group_name }}</td>
+    <td>{{ lpdofffarm_detail.beneficiary }}</td>
+    <td>{{ lpdofffarm_detail.region }}</td>
+    <td>{{ lpdofffarm_detail.district }}</td>
+    <td>{{ lpdofffarm_detail.settlement }}</td>
+    <td>{{ lpdofffarm_detail.Offfarm_Software_component_received }}</td>
+    <td>{{ lpdofffarm_detail.Offfarm_Hardware_component_received }}</td>
+    <td>{{ lpdofffarm_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'lpdofffarm_update' lpdofffarm_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'lpdofffarm_delete' lpdofffarm_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'lpdofffarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD Off-Farm Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No LPD off-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'lpdofffarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD Off-Farm Record</a>
+{% endif %}
+
+
+
+<h2>LPD Non-Farm records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if lpdnonfarm_details %}
+<table>
+  <tr>
+    <th>Value date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>Non-Farm Software component received </th>  
+    <th>Non-Farm Hardware component received </th>  
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for lpdnonfarm_detail in lpdnonfarm_details %}
+  <tr>
+    <td>{{ lpdnonfarm_detail.value_date }}</td>
+    <td>{{ lpdnonfarm_detail.provider }}</td>
+    <td>{{ lpdnonfarm_detail.group.group_name }}</td>
+    <td>{{ lpdnonfarm_detail.beneficiary }}</td>
+    <td>{{ lpdnonfarm_detail.region }}</td>
+    <td>{{ lpdnonfarm_detail.district }}</td>
+    <td>{{ lpdnonfarm_detail.settlement }}</td>
+    <td>{{ lpdnonfarm_detail.nonfarm_Software_component_received }}</td>
+    <td>{{ lpdnonfarm_detail.nonOfffarm_Hardware_component_received }}</td>
+    <td>{{ lpdnonfarm_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'lpdnonfarm_update' lpdnonfarm_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'lpdnonfarm_delete' lpdnonfarm_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'lpdnonfarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD Non-Farm Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No LPD Non-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'lpdnonfarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD Non-Farm Record</a>
+{% endif %}
+
+
+
+<h2> DFI records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+{% if dfi_details %}
+<table>
+  <tr>
+    <th>Value date</th>
+    <th>Provider</th>
+    <th>Group name</th>
+    <th>Beneficiary</th>
+    <th>Region</th>
+    <th>District</th>
+    <th>Settlement</th>
+    <th>DFI Software component received </th>      
+    <th>Component</th>
+    <th>Action buttons</th>
+  </tr>
+
+  {% for dfi_detail in dfi_details %}
+  <tr>
+    <td>{{ dfi_detail.value_date }}</td>
+    <td>{{ dfi_detail.provider }}</td>
+    <td>{{ dfi_detail.group.group_name }}</td>
+    <td>{{ dfi_detail.beneficiary }}</td>
+    <td>{{ dfi_detail.region }}</td>
+    <td>{{ dfi_detail.district }}</td>
+    <td>{{ dfi_detail.settlement }}</td>
+    <td>{{ dfi_detail.DFI_Software_component_received }}</td>
+    <td>{{ dfi_detail.component }}</td>
+    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+      <a href="{% url 'dfi_update' dfi_detail.pk %}" class="update-button">Update</a>
+      <a href="{% url 'dfi_delete' dfi_detail.pk %}" class="delete-button">Delete</a>
+      <a href="{% url 'dfi_create' beneficiary.pk %}"  class="semc_create-button">Add DFI Record</a>
+    </td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No DFI Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<a href="{% url 'dfi_create' beneficiary.pk %}"  class="semc_create-button2">Add DFI Record</a>
+{% endif %}
+
+
+
+
+
+<div class="gauge-container">
+  <svg width="100%" height="100%" viewBox="0 0 100 100">
+      <circle class="gauge-circle" cx="50" cy="50" r="40"></circle>
+      <circle class="gauge-fill" cx="50" cy="50" r="40" stroke-dasharray="{{ fill_percentage }} 251.2"></circle>
+
+      <text class="gauge-text" x="50" y="50">{{ fill_percentage }}%</text>
+  </svg>
+</div>
+
+
+<script>
+  // Get the gauge fill element
+  const fillElement = document.querySelector('.fill');
+
+  // Calculate the percentage of records added (e.g., 50%)
+  const percentage = /* Calculate the percentage here */;
+
+  // Set the width of the fill element based on the percentage
+  fillElement.style.width = `${percentage}%`;
+</script>
+
+
+</ul>
+</body>
+</html>

@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Beneficiary List</title>
+  <style>
+    body {
+      font-family: Calibri, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 10px;
+      border: 1px solid black;
+    }
+
+    .beneficiary-create-button {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>Beneficiary List</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Name of Household Head</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for beneficiary in beneficiaries %}
+        <tr>
+          <td><a href="{% url 'beneficiary_detail' beneficiary.pk %}">{{ beneficiary.name_of_household_head }}</a></td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td>No beneficiaries available.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="{% url 'beneficiary_create' %}" class="beneficiary-create-button">Create New Beneficiary</a>
+</body>
+</html>

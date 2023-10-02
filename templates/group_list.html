@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Group List</title>
+  <style>
+    body {
+      font-family: Calibri, sans-serif;
+      margin: 0;
+      padding: 0;
+    }
+    table {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        th, td {
+            border: 1px solid black;
+            padding: 5px;
+        }
+
+        th {
+            background-color: #ccc;
+        }
+        h1 {
+            background-color: rgb(69, 122, 192);
+      
+    h1 {
+      text-align: center;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+
+    .group-create-button {
+      background-color: #4caf50;
+      color: white;
+      padding: 10px 20px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+  </style>
+</head>
+<body>
+  <h1>Group List</h1>
+  <table>
+    <thead>
+      <tr>
+        <th>Group Name</th>
+        <th>Group Type</th>
+        <th>Total members in group</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for group in groups %}
+        <tr>
+          <td><a href="{% url 'group_detail' group.pk %}">{{ group.group_name }}</a></td>
+          <td>{{ group.group_type }}</td>
+          <td>{{group.total_members  }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td>No groups available.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <p>
+  <a href="{% url 'group_create' %}"class="group-create-button">Create New Group</a>
+</p>
+</body>
+</html>

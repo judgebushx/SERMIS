@@ -1,0 +1,18 @@
+<!-- delete_person.html -->
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Delete Group</title>
+</head>
+<body>
+    <h1>Delete Group</h1>
+    <p>Are you sure you want to delete {{ group.group_name }}?</p>
+    <form method="POST">
+        {% csrf_token %}
+        <button type="submit">Delete</button>
+    </form>
+</body>
+</html>
