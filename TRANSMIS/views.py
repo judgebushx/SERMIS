@@ -6,6 +6,19 @@ from django.urls import reverse
 from .models import Group
 from .models import SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricash, SPSAGE, LPDOnFarm, LPDOffFarm, LPDNonFarm, DFI
 from .forms import SEMCMentoringCoachingForm, SEMCCommunityParticipationForm, SEMCSBCCForm, SPGFAForm, SPNutricashForm, SPSAGEForm, LPDOnFarmForm, LPDOffFarmForm, LPDNonFarmForm, DFIForm
+from django.apps import apps
+
+
+from django.http import JsonResponse
+
+from django.core.files import File
+from django.core.files.temp import NamedTemporaryFile
+from urllib.request import urlopen
+from django.core.files.base import ContentFile
+import base64
+
+
+
 
 # Group Views--------------------------------------------------------------------------
 def group_list(request):
@@ -65,7 +78,6 @@ def beneficiary_detail(request, pk):
     lpdofffarm_details = LPDOffFarm.objects.filter(beneficiary=beneficiary)
     lpdnonfarm_details = LPDNonFarm.objects.filter(beneficiary=beneficiary)
     dfi_details = DFI.objects.filter(beneficiary=beneficiary)    
-        
     
     return render(
         request, 'beneficiary_detail.html', {'beneficiary': beneficiary,
@@ -84,17 +96,40 @@ def beneficiary_detail(request, pk):
         )
 
 def beneficiary_create(request, pk):
-    group = get_object_or_404(Group, pk=pk)  # Get the group object based on group_id
+    group = get_object_or_404(Group, pk=pk)
+
     if request.method == 'POST':
-        form = BeneficiaryForm(request.POST)
+        form = BeneficiaryForm(request.POST, request.FILES)
+
+        # Proceed with form processing if image data is not present
         if form.is_valid():
+            # Access the captured image data
+            webimg_data = request.POST.get('webimg')
+            
+            # Convert base64 image data to a file and associate it with the form
+            if webimg_data:
+                format, imgstr = webimg_data.split(';base64,') 
+                ext = format.split('/')[-1]
+
+                # Create a ContentFile from the base64 data
+                image_data = ContentFile(base64.b64decode(imgstr), name=f'webimg.{ext}')
+
+                # Associate the image data with the form
+                #form.cleaned_data['participant_photo'] = image_data
+                form.instance.participant_photo = image_data
+
             beneficiary = form.save(commit=False)
-            beneficiary.group = group  # Set the group for the beneficiary
+            beneficiary.group = group
             beneficiary.save()
-            return redirect('beneficiary_detail', pk=beneficiary.pk)
+
+            return JsonResponse({'status': 'success'})
+        else:
+            return JsonResponse({'status': 'error', 'errors': form.errors})
     else:
         form = BeneficiaryForm()
+
     return render(request, 'beneficiary_form.html', {'form': form})
+
 
 def beneficiary_update(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
@@ -113,6 +148,28 @@ def beneficiary_delete(request, pk):
         beneficiary.delete()
         return redirect('beneficiary_list')
     return render(request, 'beneficiary_confirm_delete.html', {'beneficiary': beneficiary})
+
+
+
+
+
+def get_record_counts(request, beneficiary_id):
+    # Fetch the counts for each model instance
+    semc_mentoring_count = SEMCMentoringCoaching.objects.filter(pk=beneficiary_id).count()
+    semc_community_count = SEMCCommunityParticipation.objects.filter(pk=beneficiary_id).count()
+    semc_sbcc_count = SEMCSBCC.objects.filter(pk=beneficiary_id).count()
+
+    # Calculate the total count by summing the individual counts
+    total_count = semc_mentoring_count + semc_community_count + semc_sbcc_count
+
+    # Create a JSON response with the total count
+    data = {
+        'total_count': total_count,
+    }
+    
+    return JsonResponse(data)
+
+
 
 
 # SEMCCommunityParticipation--------------------------------------------------------------

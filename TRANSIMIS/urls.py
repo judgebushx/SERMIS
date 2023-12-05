@@ -18,6 +18,8 @@ from django.contrib import admin
 from django.urls import path
 from TRANSMIS import views
 from TRANSMIS.views import group_list, group_create, SEMCMentoringCoaching
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     path('', group_list, name='group_list'), 
@@ -75,6 +77,6 @@ urlpatterns = [
     path('dfi/<int:pk>/update/', views.dfi_update, name='dfi_update'),
     path('dfi/<int:pk>/delete/', views.dfi_delete, name='dfi_delete'),
 
+    path('get_record_counts/<int:beneficiary_id>/', views.get_record_counts, name='get_record_counts'),
 
-]
-
+]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

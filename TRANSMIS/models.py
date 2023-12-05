@@ -156,15 +156,15 @@ class Group(models.Model):
 
     @property
     def num_refugees(self):
-        return self.beneficiary_set.filter(nationality='Refugee').count()
+        return self.beneficiary_set.exclude(nationality='Uganda').count()
 
     @property
     def male_refugees(self):
-        return self.beneficiary_set.filter(nationality='Refugee', gender_of_participant='Male').count()
+        return self.beneficiary_set.exclude(nationality='Uganda', gender_of_participant='Male').count()
 
     @property
     def female_refugees(self):
-        return self.beneficiary_set.filter(nationality='Refugee', gender_of_participant='Female').count()
+        return self.beneficiary_set.exclude(nationality='Uganda', gender_of_participant='Female').count()
 
     @property
     def num_youth(self):
@@ -194,9 +194,9 @@ class Group(models.Model):
         self.total_members_count = beneficiaries.count()
         self.male_members_count = beneficiaries.filter(gender_of_participant='Male').count()
         self.female_members_count = beneficiaries.filter(gender_of_participant='Female').count()
-        self.num_refugees_count = beneficiaries.filter(nationality='Refugee').count()
-        self.male_refugees_count = beneficiaries.filter(nationality='Refugee', gender_of_participant='Male').count()
-        self.female_refugees_count = beneficiaries.filter(nationality='Refugee', gender_of_participant='Female').count()
+        self.num_refugees_count = beneficiaries.exclude(nationality='Uganda').count()
+        self.male_refugees_count = beneficiaries.exclude(nationality='Uganda', gender_of_participant='Male').count()
+        self.female_refugees_count = beneficiaries.exclude(nationality='Uganda', gender_of_participant='Female').count()
         self.num_youth_count = beneficiaries.filter(participant_age__lte=30).count()
         self.male_youth_count = beneficiaries.filter(participant_age__lte=30, gender_of_participant='Male').count()
         self.female_youth_count = beneficiaries.filter(participant_age__lte=30, gender_of_participant='Female').count()
@@ -284,6 +284,7 @@ class Beneficiary(models.Model):
     household_head_phone = models.IntegerField(validators=[MaxValueValidator(999999999, message="9 digits maximum" )]  )
     gender_of_participant = models.CharField(max_length=10, choices=GENDER_CHOICES)
     participant_age = models.IntegerField(validators=[MaxValueValidator(99, message="Maximum age should be 99 years or less."), MinValueValidator(0, message="Age cannot be negative."),])
+    participant_photo = models.ImageField(upload_to='beneficiary_photos/', null=True, blank=True)
     relationship_with_household_head = models.CharField(max_length=100, choices=RELHH_CHOICES)
     gender_hhh = models.CharField(max_length=100, choices=GENDER_CHOICES, verbose_name="Gender of HH Head")
     age_of_hhh = models.IntegerField(validators=[MaxValueValidator(99, message="Maximum age should be 99 years or less."), MinValueValidator(0, message="Age cannot be negative."),], verbose_name="Age of HH Head")

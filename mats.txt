@@ -1,0 +1,360 @@
+<form method="POST">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
+    </table>
+    <div class="form-submit">
+        <button type="submit" class="submit-button">Submit</button>
+    </div>
+</form>
+
+
+
+
+
+
+
+
+def beneficiary_create(request, pk):
+    group = get_object_or_404(Group, pk=pk)  # Get the group object based on group_id
+    if request.method == 'POST':
+        print(request.POST)
+        print(request.FILES)
+        form = BeneficiaryForm(request.POST, request.FILES)
+        if form.is_valid():
+            beneficiary = form.save(commit=False)
+            beneficiary.group = group  # Set the group for the beneficiary
+            beneficiary.save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        form = BeneficiaryForm()
+    return render(request, 'beneficiary_form.html', {'form': form})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enroll Beneficiary</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/webcamjs/1.0.25/webcam.min.js"></script>
+</head>
+<body>
+
+<h1>Enroll Beneficiary</h1>
+<form method="post" enctype="multipart/form-data" id="yourForm">
+    {% csrf_token %}
+    {{ form.as_p }}
+
+    <!-- Existing buttons for camera functionality -->
+    <button type="button" onclick="startCamera()">Open Camera</button>
+    <button type="button" onclick="capturePhoto()">Take Photo</button>
+    <button type="button" onclick="stopCamera()">Stop Camera</button>
+
+    <!-- New input field for file upload -->
+    <input type="file" name="photo" style="display: none;" id="photoInput">
+    <label for="photoInput">Choose File</label>
+
+    <button type="submit">Submit</button>
+
+    <div id="cameraInput"></div>
+    <img id="photoPreview" style="max-width: 300px; max-height: 300px;">
+</form>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        startCamera();
+    });
+
+    function startCamera() {
+        Webcam.set({
+            width: 640,
+            height: 480,
+            dest_width: 640,
+            dest_height: 480,
+            image_format: 'jpeg',
+            jpeg_quality: 90,
+        });
+
+        Webcam.attach('#cameraInput');
+    }
+
+    function capturePhoto() {
+        Webcam.snap(function (data_uri) {
+            document.getElementById('photoPreview').src = data_uri;
+        });
+    }
+
+    function stopCamera() {
+        Webcam.reset();
+    }
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script>
+(function() {
+    var width = 320;
+    var height = 0;
+    var streaming = false;
+    var video = null;
+    var canvas = null;
+    var photo = null;
+    var startbutton = null;
+
+    function startup() {
+        video = document.getElementById('video');
+        canvas = document.getElementById('canvas');
+        photo = document.getElementById('photo');
+        startbutton = document.getElementById('startbutton');
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(err) {
+            console.log("An error occurred: " + err);
+        });
+
+        video.addEventListener('canplay', function(ev){
+            if (!streaming) {
+                height = video.videoHeight / (video.videoWidth/width);
+
+                if (isNaN(height)) {
+                    height = width / (4/3);
+                }
+
+                video.setAttribute('width', width);
+                video.setAttribute('height', height);
+                canvas.setAttribute('width', width);
+                canvas.setAttribute('height', height);
+                streaming = true;
+            }
+        }, false);
+
+        startbutton.addEventListener('click', function(ev){
+            takepicture();
+            ev.preventDefault();
+        }, false);
+
+        clearphoto();
+    }
+
+    function clearphoto() {
+        var context = canvas.getContext('2d');
+        context.fillStyle = "#AAA";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        var data = canvas.toDataURL('image/png');
+        photo.setAttribute('src', data);
+    }
+
+    function takepicture() {
+        var context = canvas.getContext('2d');
+        if (width && height) {
+            canvas.width = width;
+            canvas.height = height;
+            context.drawImage(video, 0, 0, width, height);
+
+            var data = canvas.toDataURL('image/png');
+            photo.setAttribute('src', data);
+        } else {
+            clearphoto();
+        }
+    }
+
+    window.addEventListener('load', startup, false);
+
+    // Additional JavaScript logic for handling form submission
+    document.getElementById('beneficiaryForm').addEventListener('submit', function(event) {
+        // Additional logic to handle form submission, e.g., prevent default and submit via AJAX
+        event.preventDefault();
+        // Add your custom logic here
+    });
+})();
+</script>    
+
+
+
+
+
+
+
+Working script
+
+(function() {
+    var width = 320;
+    var height = 0;
+    var streaming = false;
+    var video = null;
+    var canvas = null;
+    var photo = null;
+    var startbutton = null;
+
+    function startup() {
+        video = document.getElementById('video');
+        canvas = document.getElementById('canvas');
+        photo = document.getElementById('photo');
+        startbutton = document.getElementById('startbutton');
+
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+        .then(function(stream) {
+            video.srcObject = stream;
+            video.play();
+        })
+        .catch(function(err) {
+            console.log("An error occurred: " + err);
+        });
+
+        video.addEventListener('canplay', function(ev){
+            if (!streaming) {
+                height = video.videoHeight / (video.videoWidth/width);
+
+                if (isNaN(height)) {
+                    height = width / (4/3);
+                }
+
+                video.setAttribute('width', width);
+                video.setAttribute('height', height);
+                canvas.setAttribute('width', width);
+                canvas.setAttribute('height', height);
+                streaming = true;
+            }
+        }, false);
+
+        startbutton.addEventListener('click', function(ev){
+            takepicture();
+            ev.preventDefault();
+        }, false);
+
+        clearphoto();
+    }
+
+    function clearphoto() {
+        var context = canvas.getContext('2d');
+        context.fillStyle = "#AAA";
+        context.fillRect(0, 0, canvas.width, canvas.height);
+
+        var data = canvas.toDataURL('image/png');
+        photo.setAttribute('src', data);
+    }
+
+    function takepicture() {
+        console.log('Taking a picture...'); 
+        var context = canvas.getContext('2d');
+        if (width && height) {
+            canvas.width = width;
+            canvas.height = height;
+            context.drawImage(video, 0, 0, width, height);
+    
+            // Convert canvas content to base64 data URL
+            var dataUrl = canvas.toDataURL('image/png');
+    
+            // Set the captured image source
+            photo.setAttribute('src', dataUrl);
+    
+            // Set the base64 data URL to the hidden input field
+            document.getElementById('webimg').value = dataUrl;
+        } else {
+            clearphoto();
+        }
+    }
+    
+
+    // Function to convert data URL to Blob
+    function dataURLtoBlob(dataUrl) {
+        var arr = dataUrl.split(',');
+        var mime = arr[0].match(/:(.*?);/)[1];
+        var bstr = atob(arr[1]);
+        var n = bstr.length;
+        var u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        return new Blob([u8arr], { type: mime });
+    }
+
+    window.addEventListener('load', startup, false);
+})();
+
+
+
+
+
+
+
+
+

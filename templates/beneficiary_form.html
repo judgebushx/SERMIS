@@ -1,44 +1,162 @@
-
+<!doctype html>
 <style>
-    table {
-        width: 100%;
-        border-collapse: collapse;
-    }
-    
-    th, td {
-        padding: 8px;
-        text-align: left;
-        border-bottom: 1px solid #ddd;
-    }
-    
-    th {
-        background-color: #f2f2f2;
-    }
-    
-    .form-submit {
-        display: flex;
-        justify-content: center;
-        margin-top: 10px;
-    }
-    
-    .submit-button {
-        padding: 10px 20px;
-        background-color: #1195bd;
-        color: white;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-</style>
+#video {
+  border: 1px solid black;
+  box-shadow: 2px 2px 3px black;
+  width:320px;
+  height:240px;
+}
 
-<h1>Enroll Beneficiary</h1>
-<form method="POST">
-    {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-    </table>
-    <div class="form-submit">
-        <button type="submit" class="submit-button">Submit</button>
+#photo {
+  border: 1px solid black;
+  box-shadow: 2px 2px 3px black;
+  width:320px;
+  height:240px;
+}
+
+#canvas {
+  display:none;
+}
+
+.camera {
+  width: 340px;
+  display:inline-block;
+}
+
+.output {
+  width: 340px;
+  display:inline-block;
+}
+
+#startbutton {
+  display:block;
+  position:relative;
+  margin-left:auto;
+  margin-right:auto;
+  bottom:32px;
+  background-color: rgba(0, 150, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.2);
+  font-size: 14px;
+  font-family: "Lucida Grande", "Arial", sans-serif;
+  color: rgba(255, 255, 255, 1.0);
+}
+
+.contentarea {
+  font-size: 16px;
+  font-family: "Lucida Grande", "Arial", sans-serif;
+  width: 760px;
+}
+</style>
+<html>
+{% block content %}
+{% load static %}
+<head>
+    <title>VisionApp</title>
+    <meta charset='utf-8'>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" media="all">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="module" src="{% static 'js/index.js' %}"></script>
+
+</head>
+<body>
+    <div class="contentarea">
+        <div class="Input">
+<!-- Render form fields manually, excluding participant_photo -->
+                <form method="POST" name="inputForm" enctype='multipart/form-data' id="beneficiaryForm" data-pk="{{ group.pk }}">
+                    {% csrf_token %}
+
+                    <div id="camera" class="camera">
+                        <video id="video">Video stream not available.</video>
+                        <button id="startbutton" type="button">Take photo</button>
+                        <input type="file" name="participant_photo" id="id_participant_photo" style="display: none;">
+                        
+                        <canvas id="canvas"></canvas>
+                    </div>
+
+                    <br>
+
+                    <div>
+                        <img id="photo" alt="participant_photo">
+                    </div>
+
+                    <br>
+
+                    <!-- Hidden input for participant_photo -->
+                    <input type="hidden" name="{{ form.participant_photo.name }}" id="{{ form.participant_photo.id }}">
+
+                    <!-- Add other form fields manually -->
+                    <label for="{{ form.participant_photo.id }}">Participant Photo:</label>
+                    <!-- You can customize the appearance of the file input if needed -->
+                    <input type="file" name="{{ form.participant_photo.name }}" id="{{ form.participant_photo.id }}" style="display: none;">
+
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">Region:</label>
+                    {{ form.region }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">District:</label>
+                    {{ form.district }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">Settlement:</label>
+                    {{ form.settlement }}
+                    <label for="{{ form.region.id }}">nationality:</label>
+                    {{ form.nationality }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">household_id:</label>
+                    {{ form.household_id }}
+                    <label for="{{ form.region.id }}">name_of_household_head:</label>
+                    {{ form.name_of_household_head }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">household_head_phone:</label>
+                    {{ form.household_head_phone }}
+                    <label for="{{ form.region.id }}">gender_of_participant:</label>
+                    {{ form.gender_of_participant }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">participant_age:</label>
+                    {{ form.participant_age }}
+
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">relationship_with_household_head:</label>
+                    {{ form.relationship_with_household_head }}
+                    <label for="{{ form.region.id }}">gender_hhh:</label>
+                    {{ form.gender_hhh }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">age_of_hhh:</label>
+                    {{ form.age_of_hhh }}
+                    <label for="{{ form.region.id }}">disablity_of_hhh:</label>
+                    {{ form.disablity_of_hhh }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">marital_status:</label>
+                    {{ form.marital_status }}
+                    <label for="{{ form.region.id }}">education_level:</label>
+                    {{ form.education_level }}
+                    <!-- Add other form fields here -->
+                    <label for="{{ form.region.id }}">religion:</label>
+                    {{ form.religion }}
+                    <label for="{{ form.region.id }}">household_own_any_livestock:</label>
+                    {{ form.household_own_any_livestock }}
+
+
+                    <!-- ... Add other form fields ... -->
+
+                    <input type="text" id="webimg" name="webimg" style="display: none;">
+
+                    <button type="submit" class="button" id="submit">Submit</button>
+                </form>
+                
+{% if form.errors %}
+<div class="alert alert-danger">
+  <strong>Error:</strong> There are errors in the form. Please correct them and try again.
+  <ul>
+    {% for field, errors in form.errors.items %}
+      <li>{{ field }}: {{ errors.0 }}</li>
+    {% endfor %}
+  </ul>
+</div>
+{% endif %}
+        </div>
+        <img src="{{ path }}" alt="The screen capture will appear in this box.">
     </div>
-</form>
+</body>
+{% endblock %}
+</html>

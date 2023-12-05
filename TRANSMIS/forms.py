@@ -14,7 +14,9 @@ class BeneficiaryForm(forms.ModelForm):
         model = Beneficiary
         exclude = ['group']
         fields = '__all__'
-
+        widgets = {
+            'participant_photo': forms.FileInput(attrs={'accept': 'image/*', 'capture':'camera'})
+            }
 
 
 
