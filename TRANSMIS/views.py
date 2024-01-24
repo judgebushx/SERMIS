@@ -1,30 +1,31 @@
-from django.shortcuts import render
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Group, Beneficiary
-from .forms import GroupForm, BeneficiaryForm
 from django.urls import reverse
-from .models import Group
 from .models import SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricash, SPSAGE, LPDOnFarm, LPDOffFarm, LPDNonFarm, DFI
-from .forms import SEMCMentoringCoachingForm, SEMCCommunityParticipationForm, SEMCSBCCForm, SPGFAForm, SPNutricashForm, SPSAGEForm, LPDOnFarmForm, LPDOffFarmForm, LPDNonFarmForm, DFIForm
+from .forms import GroupForm, BeneficiaryForm, SEMCMentoringCoachingForm, SEMCCommunityParticipationForm, SEMCSBCCForm, SPGFAForm, SPNutricashForm, SPSAGEForm, LPDOnFarmForm, LPDOffFarmForm, LPDNonFarmForm, DFIForm
 from django.apps import apps
-
-
 from django.http import JsonResponse
-
 from django.core.files import File
 from django.core.files.temp import NamedTemporaryFile
 from urllib.request import urlopen
 from django.core.files.base import ContentFile
 import base64
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth import logout
+from django.urls import reverse
+
 
 
 
 
 # Group Views--------------------------------------------------------------------------
+@login_required
 def group_list(request):
     groups = Group.objects.all()
     return render(request, 'group_list.html', {'groups': groups})
 
+
+@login_required
 def group_detail(request, pk):
     group = get_object_or_404(Group, pk=pk)
     beneficiaries = group.get_beneficiaries()
@@ -33,6 +34,8 @@ def group_detail(request, pk):
    
     return render(request, 'group_detail.html', {'group': group, 'group_create': group_create, 'beneficiaries': beneficiaries})
 
+
+@login_required
 def group_create(request):
     if request.method == 'POST':
         form = GroupForm(request.POST)
@@ -43,6 +46,8 @@ def group_create(request):
         form = GroupForm()
     return render(request, 'group_form.html', {'form': form})
 
+
+@login_required
 def group_update(request, pk):
     group = get_object_or_404(Group, pk=pk)
     if request.method == 'POST':
@@ -54,6 +59,8 @@ def group_update(request, pk):
         form = GroupForm(instance=group)
     return render(request, 'group_form.html', {'form': form})
 
+
+@login_required
 def group_delete(request, pk):
     group = get_object_or_404(Group, pk=pk)
     if request.method == 'POST':
@@ -62,10 +69,13 @@ def group_delete(request, pk):
     return render(request, 'group_confirm_delete.html', {'group': group})
 
 # Beneficiary Views-----------------------------------------------------------------
+@login_required
 def beneficiary_list(request):
     beneficiaries = Beneficiary.objects.all()
     return render(request, 'beneficiary_list.html', {'beneficiaries': beneficiaries})
 
+
+@login_required
 def beneficiary_detail(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
     semcmentoringcoaching_details = SEMCMentoringCoaching.objects.filter(beneficiary=beneficiary)
@@ -94,7 +104,7 @@ def beneficiary_detail(request, pk):
 
                                               }
         )
-
+@login_required
 def beneficiary_create(request, pk):
     group = get_object_or_404(Group, pk=pk)
 
@@ -130,7 +140,7 @@ def beneficiary_create(request, pk):
 
     return render(request, 'beneficiary_form.html', {'form': form})
 
-
+@login_required
 def beneficiary_update(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
     if request.method == 'POST':
@@ -142,17 +152,17 @@ def beneficiary_update(request, pk):
         form = BeneficiaryForm(instance=beneficiary)
     return render(request, 'beneficiary_form.html', {'form': form})
 
+@login_required
 def beneficiary_delete(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
     if request.method == 'POST':
-        beneficiary.delete()
-        return redirect('beneficiary_list')
+        group_pk = beneficiary.group.pk
+        beneficiary.delete()  
+        return redirect('group_detail', pk=group_pk)
     return render(request, 'beneficiary_confirm_delete.html', {'beneficiary': beneficiary})
 
 
-
-
-
+@login_required
 def get_record_counts(request, beneficiary_id):
     # Fetch the counts for each model instance
     semc_mentoring_count = SEMCMentoringCoaching.objects.filter(pk=beneficiary_id).count()
@@ -174,6 +184,7 @@ def get_record_counts(request, beneficiary_id):
 
 # SEMCCommunityParticipation--------------------------------------------------------------
 
+@login_required
 def semccommunityparticipation_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -189,7 +200,7 @@ def semccommunityparticipation_create(request, pk):
 
     return render(request, 'semccommunityparticipation_form.html', {'form': form})
 
-
+@login_required
 def semccommunityparticipation_update(request, pk):
     semccommunityparticipation = get_object_or_404(SEMCCommunityParticipation, pk=pk)
     
@@ -203,7 +214,7 @@ def semccommunityparticipation_update(request, pk):
 
     return render(request, 'semccommunityparticipation_form.html', {'form': form})
 
-
+@login_required
 def semccommunityparticipation_delete(request, pk):
     semccommunityparticipation = get_object_or_404(SEMCCommunityParticipation, pk=pk)
     beneficiary_pk = semccommunityparticipation.beneficiary.pk
@@ -217,7 +228,7 @@ def semccommunityparticipation_delete(request, pk):
         return render(request, 'semccommunityparticipation_delete.html', {'beneficiary_pk': beneficiary_pk})
 
 # SEMCSBCC Views------------------------------------------------------------------------------
-
+@login_required
 def semcsbcc_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -233,7 +244,7 @@ def semcsbcc_create(request, pk):
 
     return render(request, 'semcsbcc_form.html', {'form': form})
 
-
+@login_required
 def semcsbcc_update(request, pk):
     semcsbcc = get_object_or_404(SEMCSBCC, pk=pk)
     
@@ -247,7 +258,7 @@ def semcsbcc_update(request, pk):
 
     return render(request, 'semcsbcc_form.html', {'form': form})
 
-
+@login_required
 def semcsbcc_delete(request, pk):
     semcsbcc = get_object_or_404(SEMCSBCC, pk=pk)
     beneficiary_pk = semcsbcc.beneficiary.pk
@@ -264,7 +275,7 @@ def semcsbcc_delete(request, pk):
 
 
 # SEMCMentoringCoaching Views-----------------------------------------------------------------
-
+@login_required
 def semc_mentoring_coaching_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -280,6 +291,7 @@ def semc_mentoring_coaching_create(request, pk):
 
     return render(request, 'semc_mentoring_coaching_form.html', {'form': form})
 
+@login_required
 def semc_mentoring_coaching_update(request, pk):
     semc_mentoring_coaching = get_object_or_404(SEMCMentoringCoaching, pk=pk)
     
@@ -293,6 +305,7 @@ def semc_mentoring_coaching_update(request, pk):
 
     return render(request, 'semc_mentoring_coaching_form.html', {'form': form})
 
+@login_required
 def semc_mentoring_coaching_delete(request, pk):
     semc_mentoring_coaching = get_object_or_404(SEMCMentoringCoaching, pk=pk)
     beneficiary_pk = semc_mentoring_coaching.beneficiary.pk
@@ -307,7 +320,7 @@ def semc_mentoring_coaching_delete(request, pk):
 
 #SPGFA views-----------------------------------------------------------------------------------------------
 
-
+@login_required
 def spgfa_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -323,7 +336,7 @@ def spgfa_create(request, pk):
 
     return render(request, 'spgfa_form.html', {'form': form})
 
-
+@login_required
 def spgfa_update(request, pk):
     spgfa = get_object_or_404(SPGFA, pk=pk)
     
@@ -337,7 +350,7 @@ def spgfa_update(request, pk):
 
     return render(request, 'spgfa_form.html', {'form': form})
 
-
+@login_required
 def spgfa_delete(request, pk):
     spgfa = get_object_or_404(SPGFA, pk=pk)
     beneficiary_pk = spgfa.beneficiary.pk
@@ -353,7 +366,7 @@ def spgfa_delete(request, pk):
 
 #SPNutricash views-----------------------------------------------------------------------------------------------
 
-
+@login_required
 def spnutricash_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -369,7 +382,7 @@ def spnutricash_create(request, pk):
 
     return render(request, 'spnutricash_form.html', {'form': form})
 
-
+@login_required
 def spnutricash_update(request, pk):
     spnutricash = get_object_or_404(SPNutricash, pk=pk)
     
@@ -383,7 +396,7 @@ def spnutricash_update(request, pk):
 
     return render(request, 'spnutricash_form.html', {'form': form})
 
-
+@login_required
 def spnutricash_delete(request, pk):
     spnutricash = get_object_or_404(SPNutricash, pk=pk)
     beneficiary_pk = spnutricash.beneficiary.pk
@@ -398,6 +411,7 @@ def spnutricash_delete(request, pk):
     
     #SPSAGE views-----------------------------------------------------------------------------------------------
 
+@login_required
 def spsage_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -413,7 +427,7 @@ def spsage_create(request, pk):
 
     return render(request, 'spsage_form.html', {'form': form})
 
-
+@login_required
 def spsage_update(request, pk):
     spsage = get_object_or_404(SPSAGE, pk=pk)
     
@@ -427,7 +441,7 @@ def spsage_update(request, pk):
 
     return render(request, 'spsage_form.html', {'form': form})
 
-
+@login_required
 def spsage_delete(request, pk):
     spsage = get_object_or_404(SPSAGE, pk=pk)
     beneficiary_pk = spsage.beneficiary.pk
@@ -442,7 +456,7 @@ def spsage_delete(request, pk):
     
 
 #LPDOnFarm views-----------------------------------------------------------------------------------------------
-
+@login_required
 def lpdonfarm_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -458,7 +472,7 @@ def lpdonfarm_create(request, pk):
 
     return render(request, 'lpdonfarm_form.html', {'form': form})
 
-
+@login_required
 def lpdonfarm_update(request, pk):
     lpdonfarm = get_object_or_404(LPDOnFarm, pk=pk)
     
@@ -472,7 +486,7 @@ def lpdonfarm_update(request, pk):
 
     return render(request, 'lpdonfarm_form.html', {'form': form})
 
-
+@login_required
 def lpdonfarm_delete(request, pk):
     lpdonfarm = get_object_or_404(LPDOnFarm, pk=pk)
     beneficiary_pk = lpdonfarm.beneficiary.pk
@@ -486,7 +500,7 @@ def lpdonfarm_delete(request, pk):
         return render(request, 'lpdonfarm_delete.html', {'beneficiary_pk': beneficiary_pk})
     
 #LPDOffFarm views-----------------------------------------------------------------------------------------------
-
+@login_required
 def lpdofffarm_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -502,7 +516,7 @@ def lpdofffarm_create(request, pk):
 
     return render(request, 'lpdofffarm_form.html', {'form': form})
 
-
+@login_required
 def lpdofffarm_update(request, pk):
     lpdofffarm = get_object_or_404(LPDOffFarm, pk=pk)
     
@@ -516,7 +530,7 @@ def lpdofffarm_update(request, pk):
 
     return render(request, 'lpdofffarm_form.html', {'form': form})
 
-
+@login_required
 def lpdofffarm_delete(request, pk):
     lpdofffarm = get_object_or_404(LPDOffFarm, pk=pk)
     beneficiary_pk = lpdofffarm.beneficiary.pk
@@ -531,7 +545,7 @@ def lpdofffarm_delete(request, pk):
 
 
 #LPDNonFarm views-----------------------------------------------------------------------------------------------
-
+@login_required
 def lpdnonfarm_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -547,7 +561,7 @@ def lpdnonfarm_create(request, pk):
 
     return render(request, 'lpdnonfarm_form.html', {'form': form})
 
-
+@login_required
 def lpdnonfarm_update(request, pk):
     lpdnonfarm = get_object_or_404(LPDNonFarm, pk=pk)
     
@@ -561,7 +575,7 @@ def lpdnonfarm_update(request, pk):
 
     return render(request, 'lpdnonfarm_form.html', {'form': form})
 
-
+@login_required
 def lpdnonfarm_delete(request, pk):
     lpdnonfarm = get_object_or_404(LPDNonFarm, pk=pk)
     beneficiary_pk = lpdnonfarm.beneficiary.pk
@@ -576,7 +590,7 @@ def lpdnonfarm_delete(request, pk):
 
 
 #DFI views-----------------------------------------------------------------------------------------------
-
+@login_required
 def dfi_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
@@ -592,7 +606,7 @@ def dfi_create(request, pk):
 
     return render(request, 'dfi_form.html', {'form': form})
 
-
+@login_required
 def dfi_update(request, pk):
     dfi = get_object_or_404(DFI, pk=pk)
     
@@ -606,7 +620,7 @@ def dfi_update(request, pk):
 
     return render(request, 'dfi_form.html', {'form': form})
 
-
+@login_required
 def dfi_delete(request, pk):
     dfi = get_object_or_404(DFI, pk=pk)
     beneficiary_pk = dfi.beneficiary.pk
@@ -618,4 +632,12 @@ def dfi_delete(request, pk):
     else:
         # Display the confirmation page
         return render(request, 'dfi_delete.html', {'beneficiary_pk': beneficiary_pk})
+    
+
+
+
+def custom_logout(request):
+    logout(request)
+    return redirect(reverse('login'))  # 'login' is the name of the login URL
+
 

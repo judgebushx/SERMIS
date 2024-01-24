@@ -1,90 +1,130 @@
+{% extends 'base.html' %}
+
+{% block content %}
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Show Beneficiary</title>
-    <style>
-        body {
-             font-family: Calibri, sans-serif;
-        }
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+  <style>
+body {
+  font-family: 'Calibri', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f2f2f2;
+}
 
-        th, td {
-            border: 1px solid black;
-            padding: 5px;
-        }
+h1, h2 {
+  text-align: center;
+  color: #111;
+}
 
-        th {
-            background-color: #ccc;
-        }
-        h1 {
-            background-color: rgb(69, 122, 192);
-        }
-        .status {
-            font-weight: bold;
-        }
-        .enrolled {
-            color: green;
-        }
-        .exited {
-            color: red;
-        }
-        .action-buttons a {
-            margin-right: 5px;
-            text-decoration: none;
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-        }
-        
-        .action-buttons a:hover {
-            background-color: #f2f2f2;
-        }
-        .create-button {
-            background-color: #539f38;
-            color: #669071;
-        }
-        .update-button {
-            background-color: #2196f3;
-            color: #fff;
-        }
-        
-        .delete-button {
-            background-color: #f44336;
-            color: #fff;
-        }
-        .semc_create-button1 {
-            background-color: #4caf50;
-            color: #fff;
-        }
-        .semc_create-button2 {
-            background-color: #4caf50;
-            color: #fff;
-            padding: 7px 8px;
-            border-radius: 5px;
-        }
-        .beneficiary_detail-button {
-            background-color: #5da166;
-            color: #fff;
-        }
-        h1 {
-          font-size: 25px;
-        }
-      
-        h2 {
-          font-size: 18px;
-          text-align: center; 
-        }
+h1 {
+  margin-top: 2em;
+  background-color: #115299;
+  font-size: 25px;
+  padding: 10px;
+  color: white;
+}
 
+h2 {
+  font-size: 18px;
+  margin-top: 20px;
+}
 
+table {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 20px;
+}
 
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
 
+th {
+  background-color: #eee;
+  font-weight: bold;
+  border-bottom: 2px solid #ccc;
+}
 
+.profile-photo {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto;
+}
 
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
 
+.action-buttons a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+.action-buttons a:hover {
+  color: #0056b3;
+}
+
+.create-button,
+.update-button,
+.delete-button,
+.semc_create-button,
+.semc_create-button2,
+.beneficiary_detail-button {
+  display: inline-block;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 0.7rem;
+}
+
+.create-button {
+  background-color: #539f38;
+  color: #669071;
+}
+
+.update-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.semc_create-button,
+.semc_create-button2 {
+  background-color: #4caf50;
+  color: white;
+}
+
+.beneficiary_detail-button {
+  background-color: #5da166;
+  color: white;
+}
+
+    .meter {
+        width: 100%;
+        height: 20px;
+        background-color: #ccc;
+        border-radius: 5px;
+    }
+
+    .meter span {
+        display: block;
+        height: 100%;
+        width: 0;
+        background-color: #4caf50;
+        border-radius: 5px;
+        transition: width 0.5s ease;
+    }
 
 
 
@@ -715,3 +755,4 @@ fetch('/get_record_counts/1/')
 </ul>
 </body>
 </html>
+{% endblock %}

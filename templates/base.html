@@ -1,0 +1,144 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>SERMIS</title>
+    <style>
+             .logo {
+            width: 100px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
+        }
+        
+        /* Additional ratios */
+        .logo.small {
+            width: 150px;
+        }
+        
+        .logo.medium {
+            width: 250px;
+        }
+        
+        .logo.large {
+            width: 300px;
+        }
+
+        body {
+        font-family: "Calibri", sans-serif;
+        }
+        .logout-button {
+            display: inline-block;
+            background-color: #e42f2f;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+        }
+            .logout-button {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        }
+        header {
+            background-color: rgb(208, 210, 214);
+            height: 35px;
+            }
+        .user-name {
+        font-weight: bold;
+        color: rgb(20, 150, 41);
+        }
+
+        .login-link {
+        /* Add any necessary styles for the login link */
+        }
+
+        .prompt {
+            color: red;
+             font-weight: bold;
+        }
+        .home-link {
+        background-color: rgb(157, 158, 158);
+        color: black;
+        padding: 10px 20px;
+        text-align: center;
+        text-decoration: none;
+        border-radius: 4px;
+        border: none;
+        cursor: pointer;
+        font-size: 16px;
+        }
+        .paragraph-space {
+            margin-top: 20px;
+        }
+        .date-time {
+            font-weight: bold;
+            color: rgb(46, 88, 177);
+        }
+    </style>
+</head>
+<body>
+    <div class="logo">
+        <img src="{% static 'images/wfp_logo.jpg' %}" alt="Logo" class="logo">
+    </div>
+        <p class="paragraph-space"></p>
+    <div class="home-link-container">
+        <a href="{% url 'group_list' %}" class="home-link">Home</a>
+    </div>
+         <p class="paragraph-space"></p>
+
+    <header>
+        <!-- Navigation menu or logo -->
+        <div class="top-left">
+           
+            {% if user.is_authenticated %}
+                Welcome, <span class="user-name"> {{ user.first_name }} {{ user.last_name }}</span>
+                
+            {% else %}
+                Not logged in. <a href="{% url 'login' %}" class="login-link">Login</a>
+            {% endif %}
+
+          
+        </div>
+       
+        {% if user.is_authenticated %}
+        <div id="currentDateTime" class="date-time" style="position: absolute; top: 164px; right: 10px;"></div>
+        {% endif %}
+        <!-- JavaScript code to update date and time -->
+       
+        <script>
+            function updateDateTime() {
+                const now = new Date();
+                const dateTimeString = now.toLocaleString(); // Format the date and time as you like
+                document.getElementById('currentDateTime').innerText = dateTimeString;
+            }
+    
+            // Call the updateDateTime function initially and every 1 second to update the time
+            updateDateTime();
+            setInterval(updateDateTime, 1000);
+        </script>
+       
+        </div>
+   
+        
+    </header>
+    
+    <main>
+        {% block content %}
+        {% endblock %}
+    </main>
+    
+    <footer>
+        <!-- Footer content -->
+    </footer>
+
+    {% if user.is_authenticated %}
+
+        <a href="{% url 'custom_logout' %}" class="logout-button">Logout</a>
+       
+
+    {% endif %}
+</body>
+

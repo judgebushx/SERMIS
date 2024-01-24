@@ -1,58 +1,12 @@
-<!doctype html>
-<style>
-#video {
-  border: 1px solid black;
-  box-shadow: 2px 2px 3px black;
-  width:320px;
-  height:240px;
-}
+{% extends 'base.html' %}
 
-#photo {
-  border: 1px solid black;
-  box-shadow: 2px 2px 3px black;
-  width:320px;
-  height:240px;
-}
 
-#canvas {
-  display:none;
-}
-
-.camera {
-  width: 340px;
-  display:inline-block;
-}
-
-.output {
-  width: 340px;
-  display:inline-block;
-}
-
-#startbutton {
-  display:block;
-  position:relative;
-  margin-left:auto;
-  margin-right:auto;
-  bottom:32px;
-  background-color: rgba(0, 150, 0, 0.5);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0px 0px 1px 2px rgba(0, 0, 0, 0.2);
-  font-size: 14px;
-  font-family: "Lucida Grande", "Arial", sans-serif;
-  color: rgba(255, 255, 255, 1.0);
-}
-
-.contentarea {
-  font-size: 16px;
-  font-family: "Lucida Grande", "Arial", sans-serif;
-  width: 760px;
-}
-</style>
-<html>
 {% block content %}
 {% load static %}
+<!doctype html>
+
 <head>
-    <title>VisionApp</title>
+    <title>Beneficiary/Participant Enrollment</title>
     <meta charset='utf-8'>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" media="all">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -60,10 +14,13 @@
 
 </head>
 <body>
+  <h1>Enroll Beneficiary</h1>
+  <div  class="contentarea">
     <div class="contentarea">
         <div class="Input">
 <!-- Render form fields manually, excluding participant_photo -->
-                <form method="POST" name="inputForm" enctype='multipart/form-data' id="beneficiaryForm" data-pk="{{ group.pk }}">
+                  <form method="POST" name="inputForm" enctype='multipart/form-data' id="beneficiaryForm" data-pk="{{ group.pk }}">
+                 
                     {% csrf_token %}
 
                     <div id="camera" class="camera">
@@ -82,8 +39,6 @@
 
                     <br>
 
-                    <!-- Hidden input for participant_photo -->
-                    <input type="hidden" name="{{ form.participant_photo.name }}" id="{{ form.participant_photo.id }}">
 
                     <!-- Add other form fields manually -->
                     <label for="{{ form.participant_photo.id }}">Participant Photo:</label>
@@ -99,41 +54,41 @@
                     <!-- Add other form fields here -->
                     <label for="{{ form.region.id }}">Settlement:</label>
                     {{ form.settlement }}
-                    <label for="{{ form.region.id }}">nationality:</label>
+                    <label for="{{ form.region.id }}">Nationality:</label>
                     {{ form.nationality }}
                     <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">household_id:</label>
+                    <label for="{{ form.region.id }}">Household ID:</label>
                     {{ form.household_id }}
-                    <label for="{{ form.region.id }}">name_of_household_head:</label>
+                    <label for="{{ form.region.id }}">Name of Household Head:</label>
                     {{ form.name_of_household_head }}
                     <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">household_head_phone:</label>
+                    <label for="{{ form.region.id }}">Household head phone:</label>
                     {{ form.household_head_phone }}
-                    <label for="{{ form.region.id }}">gender_of_participant:</label>
+                    <label for="{{ form.region.id }}">Gender of participant:</label>
                     {{ form.gender_of_participant }}
                     <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">participant_age:</label>
+                    <label for="{{ form.region.id }}">Participant age:</label>
                     {{ form.participant_age }}
 
                     <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">relationship_with_household_head:</label>
+                    <label for="{{ form.region.id }}">Relationship with Household head:</label>
                     {{ form.relationship_with_household_head }}
-                    <label for="{{ form.region.id }}">gender_hhh:</label>
+                    <label for="{{ form.region.id }}">Gender of Household head:</label>
                     {{ form.gender_hhh }}
                     <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">age_of_hhh:</label>
+                    <label for="{{ form.region.id }}">Age of Household head:</label>
                     {{ form.age_of_hhh }}
-                    <label for="{{ form.region.id }}">disablity_of_hhh:</label>
+                    <label for="{{ form.region.id }}">Disablity status of household head:</label>
                     {{ form.disablity_of_hhh }}
                     <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">marital_status:</label>
+                    <label for="{{ form.region.id }}">Marital status:</label>
                     {{ form.marital_status }}
-                    <label for="{{ form.region.id }}">education_level:</label>
+                    <label for="{{ form.region.id }}">Educational level:</label>
                     {{ form.education_level }}
                     <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">religion:</label>
+                    <label for="{{ form.region.id }}">Religion:</label>
                     {{ form.religion }}
-                    <label for="{{ form.region.id }}">household_own_any_livestock:</label>
+                    <label for="{{ form.region.id }}">Does Household own any livestock?:</label>
                     {{ form.household_own_any_livestock }}
 
 
@@ -154,9 +109,9 @@
   </ul>
 </div>
 {% endif %}
-        </div>
-        <img src="{{ path }}" alt="The screen capture will appear in this box.">
-    </div>
-</body>
-{% endblock %}
+</div>
+
 </html>
+
+
+{% endblock %}

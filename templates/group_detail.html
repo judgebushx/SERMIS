@@ -1,76 +1,113 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Group Detail - {{ group.group_name }}</title>  
 </head>
 <style>
-    body {
-      font-family: Calibri, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-    table {
-        border-collapse: collapse;
-        width: 100%;
-    }
+body {
+  font-family: 'Calibri', sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f2f2f2;
+}
 
-    th, td {
-        border: 1px solid black;
-        padding: 5px;
-    }
+h1 {
+  text-align: center;
+  font-size: 24px;
+  margin-bottom: 20px;
+  background-color: #115299;
+  color: white;
+  padding: 10px;
+}
 
-    th {
-        background-color: #dadcec;
-    }
-    h1 {
-        background-color: rgb(69, 122, 192);
-    }
-    .status {
-        font-weight: bold;
-    }
-    .enrolled {
-        color: green;
-    }
-    .exited {
-        color: red;
-    }
-    .action-buttons a {
-            margin-right: 5px;
-            text-decoration: none;
-            padding: 5px 10px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            color: #333;
-        }
-        
-        .action-buttons a:hover {
-            background-color: #f2f2f2;
-        }
-        .create-button {
-            background-color: #539f38;
-            color: #669071;
-        }
-        .update-button {
-            background-color: #2196f3;
-            color: #fff;
-        }
-        
-        .delete-button {
-            background-color: #f44336;
-            color: #fff;
-        }
-        .group_create-button {
-            background-color: #4caf50;
-            color: #fff;
-        }
-        .beneficiary_create-button {
-            background-color: #b0d34f;
-            color: #fff;
-        }
-        .beneficiary_detail-button {
-            background-color: #5da166;
-            color: #fff;
-        }
+.action-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+a {
+  text-decoration: none;
+  color: #007bff;
+}
+
+a:hover {
+  color: #0056b3;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  border: 1px solid #ccc;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
+
+th {
+  background-color: #eee;
+  font-weight: bold;
+  border-bottom: 2px solid #ccc;
+  font-size: 15px;
+}
+
+.status {
+  font-weight: bold;
+}
+
+.enrolled {
+  color: green;
+}
+
+.exited {
+  color: red;
+}
+
+.group_create-button,
+.beneficiary_create-button,
+.beneficiary_detail-button,
+.update-button,
+.delete-button {
+  display: inline-block;
+  padding: 5px 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.7rem;
+}
+
+.group_create-button,
+.beneficiary_create-button {
+  background-color: #4caf50;
+  color: white;
+}
+
+
+.beneficiary_detail-button {
+  background-color: rgb(33, 16, 131);
+  color: white;
+}
+
+
+
+
+
+.update-button {
+  background-color: #2196f3;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
 </style>
 <body>
     <h1>Group Detail for <span style="color: rgb(243, 243, 247);">{{ group.group_name }}</span></h1>  
@@ -104,24 +141,6 @@
             <th>Number of youth</th>
             <th>Male youth</th>
             <th>Female youth</th>
-            <th>Number with disabilities</th>
-            <th>Received support from WFP</th>
-            <th>Received assistance from other partner</th>
-            <th>Other partner assisstance</th>
-            <th>Support received</th>
-            <th>Crop Farming</th>
-            <th>Animal farming</th>
-            <th>Savings & Loans</th>
-            <th>Involved in crafts</th>
-            <th>Technical & vocational skills</th>
-            <th>Engaged in trading</th>
-            <th>Income in the last 12 months</th>
-            <th>Value of group assets</th>
-            <th>Group Loans</th>
-            <th>Group has bank account</th>
-            <th>Current incomes</th>
-            <th>GPS for group</th>
-            <th>Action buttons</th>
         </tr>
         <tr>
             <td>{{ group.group_name }}</td>
@@ -145,6 +164,30 @@
             <td>{{ group.num_youth }}</td>
             <td>{{ group.male_youth }}</td>
             <td>{{ group.female_youth }}</td>
+        </tr>
+        <table>
+            <tr>
+            
+                    <th>Number with disabilities</th>
+                    <th>Received support from WFP</th>
+                    <th>Received assistance from other partner</th>
+                    <th>Other partner assisstance</th>
+                    <th>Support received</th>
+                    <th>Crop Farming</th>
+                    <th>Animal farming</th>
+                    <th>Savings & Loans</th>
+                    <th>Involved in crafts</th>
+                    <th>Technical & vocational skills</th>
+                    <th>Engaged in trading</th>
+                    <th>Income in the last 12 months</th>
+                    <th>Value of group assets</th>
+                    <th>Group Loans</th>
+                    <th>Group has bank account</th>
+                    <th>Current incomes</th>
+                    <th>GPS for group</th>
+                    <th>Action buttons</th>
+                </tr>
+        <tr>    
             <td>{{ group.num_disabilities }}</td>
             <td>{{ group.received_support_from_wfp }}</td>
             <td>{{ group.received_assistance_from_other_partner }}</td>
@@ -162,23 +205,19 @@
             <td>{{ group.group_has_bank_account }}</td>
             <td>{{ group.current_incomes }}</td>
             <td>{{ group.gps_for_group }}</td>
-
-       
-            <td class="action-buttons"  style="display: flex; font-size: 0.7rem;">
+            <td class="action-buttons">
                 <a href="{% url 'group_update' group.pk %}" class="update-button">Update</a>
-
                 <a href="{% url 'group_delete' group.pk %}" class="delete-button">Delete</a>
-
-                <!-----<a href="{% url 'group_create' %}" class="group_create-button">Create Group</a>--->
-               
             </td>
-       
-            
-        <tr>
+            </tr>
 
-        </tr>   
+
+
+
     </table>
-    <h2>Beneficiaries/Members in <span style="color: rgb(28, 72, 216);">{{ group.group_name }}</span> Group</h2>
+
+    </table>
+    <h1>Beneficiaries/Members in <span style="color: rgb(162, 202, 80);">{{ group.group_name }}</span> Group</h1>
     <ul>
     
       <table>
@@ -187,7 +226,7 @@
         <th>Region</th>
         <th>District</th>
         <th>Settlement</th>
-        <th>Nationality/th>
+        <th>Nationality</th>
         <th>Household head phone</th>
         <th>Gender of participant</th>
         <th>Participant age</th>
@@ -243,3 +282,4 @@
     </ul>
 </body>
 </html>
+{% endblock %}

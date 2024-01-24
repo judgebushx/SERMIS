@@ -1,15 +1,89 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
 <!DOCTYPE html>
 <html>
+
 <style>
-    body {
-      font-family: Calibri, sans-serif;
-      margin: 0;
-      padding: 0;
-    }
+body {
+  font-family: "Calibri", sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #faf9f9;
+}
+
+/* Form header */
+h1 {
+  margin: 0;
+  padding: 20px;
+  text-align: center;
+  font-size: 24px;
+  font-weight: bold;
+  color: #fff;
+  background-color: #115299;
+  border-radius: 5px;
+}
+
+/* Form container */
+table {
+  margin: 20px auto;
+  border-collapse: collapse;
+  width: 50%;
+  background-color: #fff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  border-radius: 5px;
+}
+
+/* Form labels and input fields */
+th, td {
+  padding: 10px;
+  text-align: left;
+  font-size: 16px;
+}
+
+th {
+  background-color: #eee;
+  font-weight: bold;
+}
+
+
+input, textarea {
+  width: 100%;
+  margin: 5px 0;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  box-sizing: border-box;
+  background-color: #f1f1f1;
+}
+
+/* Submit button */
+.form-submit {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.submit-button {
+  padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+  background-color: #0056b3;
+}
+
 </style>
+
 <head>
     <title>Group List</title>
 </head>
+
 <body>
     <h1>Create Group</h1>
     <form method="POST">
@@ -17,9 +91,12 @@
         <table>
             {{ form.as_table }}
         </table>
+
         <div class="form-submit">
             <button type="submit" class="submit-button">Submit</button>
         </div>
     </form>
 </body>
+
 </html>
+{% endblock %}

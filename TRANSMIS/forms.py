@@ -1,5 +1,7 @@
 from django import forms
 from .models import Group, Beneficiary, SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricash, SPSAGE, LPDOnFarm, LPDOffFarm, LPDNonFarm, DFI
+from django.core.validators import MaxValueValidator, MinValueValidator
+
 
 class GroupForm(forms.ModelForm):
     class Meta:
@@ -15,8 +17,8 @@ class BeneficiaryForm(forms.ModelForm):
         exclude = ['group']
         fields = '__all__'
         widgets = {
-            'participant_photo': forms.FileInput(attrs={'accept': 'image/*', 'capture':'camera'})
-            }
+            'participant_photo': forms.FileInput(attrs={'accept': 'image/*', 'capture': 'camera'})
+        }
 
 
 
