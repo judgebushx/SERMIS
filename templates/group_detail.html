@@ -118,118 +118,124 @@ th {
     
     </td>
 </table>
-    <table>
-        <tr>
-            <th>Group name</th>
-            <th>Group type</th>
-            <th>Status of members</th>
-            <th>Chairperson name</th>
-            <th>Chairperson gender</th>
-            <th>Chairperson contact</th>
-            <th>Alternate contact</th>
-            <th>District</th>
-            <th>Settlement</th>
-            <th>Location status</th>>
-            <th>Date formed</th>
-            <th>Formation method</th>
-            <th>Total members</th>
-            <th>Male members</th>
-            <th>Female members</th>
-            <th>Number of refugees</th>            
-            <th>Male refugees </th>
-            <th>Fenale refugees</th>
-            <th>Number of youth</th>
-            <th>Male youth</th>
-            <th>Female youth</th>
-        </tr>
-        <tr>
-            <td>{{ group.group_name }}</td>
-            <td>{{ group.group_type }}</td>
-            <td>{{ group.status_of_members }}</td>
-            <td>{{ group.chairperson_name }}</td>
-            <td>{{ group.chairperson_gender }}</td>
-            <td>{{ group.chairperson_contact }}</td>
-            <td>{{ group.alternate_contact }}</td>
-            <td>{{ group.district }}</td>
-            <td>{{ group.settlement }}</td>            
-            <td>{{ group.location_status }}</td>
-            <td>{{ group.date_formed }}</td>
-            <td>{{ group.formation_method }}</td>
-            <td>{{ group.total_members }}</td>
-            <td>{{ group.male_members }}</td>
-            <td>{{ group.female_members }}</td>           
-            <td>{{ group.num_refugees }}</td>
-            <td>{{ group.male_refugees }}</td>
-            <td>{{ group.female_refugees }}</td>
-            <td>{{ group.num_youth }}</td>
-            <td>{{ group.male_youth }}</td>
-            <td>{{ group.female_youth }}</td>
-        </tr>
-        <table>
-            <tr>
-            
-                    <th>Number with disabilities</th>
-                    <th>Received support from WFP</th>
-                    <th>Received assistance from other partner</th>
-                    <th>Other partner assisstance</th>
-                    <th>Support received</th>
-                    <th>Crop Farming</th>
-                    <th>Animal farming</th>
-                    <th>Savings & Loans</th>
-                    <th>Involved in crafts</th>
-                    <th>Technical & vocational skills</th>
-                    <th>Engaged in trading</th>
-                    <th>Income in the last 12 months</th>
-                    <th>Value of group assets</th>
-                    <th>Group Loans</th>
-                    <th>Group has bank account</th>
-                    <th>Current incomes</th>
-                    <th>GPS for group</th>
-                    <th>Action buttons</th>
-                </tr>
-        <tr>    
-            <td>{{ group.num_disabilities }}</td>
-            <td>{{ group.received_support_from_wfp }}</td>
-            <td>{{ group.received_assistance_from_other_partner }}</td>
-            <td>{{ group.other_partner_assistance }}</td>
-            <td>{{ group.support_received }}</td>
-            <td>{{ group.crop_farming }}</td>
-            <td>{{ group.animal_farming }}</td>
-            <td>{{ group.savings_and_loans }}</td>
-            <td>{{ group.involved_in_crafts }}</td>
-            <td>{{ group.tech_vocational_skills }}</td>
-            <td>{{ group.engaged_in_trading }}</td>
-            <td>{{ group.incomes_last_12_months }}</td>
-            <td>{{ group.group_assets_value }}</td>
-            <td>{{ group.group_loans }}</td>
-            <td>{{ group.group_has_bank_account }}</td>
-            <td>{{ group.current_incomes }}</td>
-            <td>{{ group.gps_for_group }}</td>
-            <td class="action-buttons">
-                <a href="{% url 'group_update' group.pk %}" class="update-button">Update</a>
-                <a href="{% url 'group_delete' group.pk %}" class="delete-button">Delete</a>
-            </td>
-            </tr>
+**Table 1: Group Information**
 
+<table style="width: 80%; overflow-x: auto;">
+    <tr>
+        <th>Group name</th>
+        <th>Group type</th>
+        <th>Status of members</th>
+        <th>Chairperson name</th>
+        <th>Chairperson gender</th>
+        <th>Chairperson contact</th>
+        <th>Alternate contact</th>
+        <th>District</th>
+        <th>Settlement</th>
+        <th>Location status</th>
+        <th>Date formed</th>
+        <th>Formation method</th>
+        <th>Total members</th>
+        <th>Male members</th>
+        <th>Female members</th>
+        <th>Number of refugees</th>
+        <th>Male refugees</th>
+        <th>Female refugees</th>
+        <th>Number of youth</th>
+        <th>Male youth</th>
+        <th>Female youth</th>
+    </tr>
+    <tr>
+        <td>{{ group.group_name }}</td>
+        <td>{{ group.group_type }}</td>
+        <td>{{ group.status_of_members }}</td>
+        <td>{{ group.chairperson_name }}</td>
+        <td>{{ group.chairperson_gender }}</td>
+        <td>{{ group.chairperson_contact }}</td>
+        <td>{{ group.alternate_contact }}</td>
+        <td>{{ group.district }}</td>
+        <td>{{ group.settlement }}</td>
+        <td>{{ group.location_status }}</td>
+        <td>{{ group.date_formed }}</td>
+        <td>{{ group.formation_method }}</td>
+        <td>{{ group.total_members }}</td>
+        <td>{{ group.male_members }}</td>
+        <td>{{ group.female_members }}</td>
+        <td>{{ group.num_refugees }}</td>
+        <td>{{ group.male_refugees }}</td>
+        <td>{{ group.female_refugees }}</td>
+        <td>{{ group.num_youth }}</td>
+        <td>{{ group.male_youth }}</td>
+        <td>{{ group.female_youth }}</td>
+    </tr>
+</table>
 
+**Table 2: Group Activities and Finances**
 
-
-    </table>
+<table style="width: 80%; overflow-x: auto;">
+    <tr>
+        <th>Number with disabilities</th>
+        <th>Received support from WFP</th>
+        <th>Received assistance from other partner</th>
+        <th>Other partner assistance</th>
+        <th>Support received</th>
+        <th>Crop Farming</th>
+        <th>Animal farming</th>
+        <th>Savings & Loans</th>
+        <th>Involved in crafts</th>
+        <th>Technical & vocational skills</th>
+        <th>Engaged in trading</th>
+        <th>Income in the last 12 months</th>
+        <th>Value of group assets</th>
+        <th>Group Loans</th>
+        <th>Group has bank account</th>
+        <th>Current incomes</th>
+        <th>GPS for group</th>
+        <th>Action buttons</th>
+    </tr>
+    <tr>
+        <td>{{ group.num_disabilities }}</td>
+        <td>{{ group.received_support_from_wfp }}</td>
+        <td>{{ group.received_assistance_from_other_partner }}</td>
+        <td>{{ group.other_partner_assistance }}</td>
+        <td>{{ group.support_received }}</td>
+        <td>{{ group.crop_farming }}</td>
+        <td>{{ group.animal_farming }}</td>
+        <td>{{ group.savings_and_loans }}</td>
+        <td>{{ group.involved_in_crafts }}</td>
+        <td>{{ group.tech_vocational_skills }}</td>
+        <td>{{ group.engaged_in_trading }}</td>
+        <td>{{ group.incomes_last_12_months }}</td>
+        <td>{{ group.group_assets_value }}</td>
+        <td>{{ group.group_loans }}</td>
+        <td>{{ group.group_has_bank_account }}</td>
+        <td>{{ group.current_incomes }}</td>
+        <td>{{ group.gps_for_group }}</td>
+        <td class="action-buttons">
+            <a href="{% url 'group_update' group.pk %}" class="update-button">Update</a>
+            <a href="{% url 'group_delete' group.pk %}" class="delete-button">Delete</a>
+        </td>
+    </tr>
+</table>
 
     </table>
     <h1>Beneficiaries/Members in <span style="color: rgb(162, 202, 80);">{{ group.group_name }}</span> Group</h1>
     <ul>
     
       <table>
+        <th>Name of Participant</th>
         <th>Name of Household head</th>
         <th>Household ID</th>
         <th>Region</th>
         <th>District</th>
         <th>Settlement</th>
         <th>Nationality</th>
+        <th>Name of household head</th>
         <th>Household head phone</th>
+        <th>Participant's Individual ID</th>
+        <th>Name of Participant</th>        
         <th>Gender of participant</th>
         <th>Participant age</th>
+        <th>Participant Phone</th>
         <th>Relatiuonship to head of household</th>
         <th>Gender of household head</th>
         <th>Age of household head</th>
@@ -237,21 +243,25 @@ th {
         <th>Marital status</th>
         <th>Educational level</th>
         <th>Religion</th>
-        <th>Household own any livestock</th>
         <th>Action Buttons</th>
 
 
         {% for beneficiary in beneficiaries %}
         <tr>
-            <td>{{ beneficiary.name_of_household_head }}</td>
+          <td>{{ beneficiary.name_of_participant }}</td>  
+          <td>{{ beneficiary.name_of_household_head }}</td>
             <td>{{ beneficiary.household_id }}</td>
             <td>{{ beneficiary.region }}</td>
             <td>{{ beneficiary.district }}</td>
             <td>{{ beneficiary.settlement }}</td>
             <td>{{ beneficiary.nationality }}</td>
+            <td> {{ beneficiary.name_of_household_head }}</td>
             <td>{{ beneficiary.household_head_phone }}</td>
+            <td> {{ beneficiary.participant_individual_id }} </td>
+            <td> {{ beneficiary.name_of_participant}} </td>
             <td>{{ beneficiary.gender_of_participant }}</td>
             <td>{{ beneficiary.participant_age }}</td>
+            <td> {{ beneficiary.participant_phone}} </td>
             <td>{{ beneficiary.relationship_with_household_head }}</td>
             <td>{{ beneficiary.gender_hhh }}</td>
             <td>{{ beneficiary.age_of_hhh }}</td>
@@ -260,7 +270,7 @@ th {
 
             <td>{{ beneficiary.education_level }}</td>
             <td>{{ beneficiary.religion }}</td>
-            <td>{{ beneficiary.household_own_any_livestock }}</td>
+
 
             <td class="action-buttons"  style="display: flex; font-size: 0.7rem;">
                 <a href="{% url 'beneficiary_update' beneficiary.pk %}" class="update-button">Update</a>

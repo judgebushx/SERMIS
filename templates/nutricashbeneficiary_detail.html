@@ -1,0 +1,116 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nutricash Beneficiary Details</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        td {
+            background-color: #fff;
+        }
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Nutricash Beneficiary Details</h1>
+        <table>
+            <tr>
+                <th>Profiling Date</th>
+                <td>{{ nutricashbeneficiary.profiling_date }}</td>
+                <th>Nutricash Beneficiary Name</th>
+                <td>{{ nutricashbeneficiary.nutricash_beneficiary_name }}</td>
+            </tr>
+            <tr>
+                <th>Beneficiary Status</th>
+                <td>{{ nutricashbeneficiary.beneficiary_status }}</td>
+                <th>Nationality</th>
+                <td>{{ nutricashbeneficiary.nationality }}</td>
+            </tr>
+            <tr>
+                <th>ID Type</th>
+                <td>{{ nutricashbeneficiary.ID_type }}</td>
+                <th>ID Number</th>
+                <td>{{ nutricashbeneficiary.ID_number }}</td>
+            </tr>
+            <tr>
+                <th>Group Representative</th>
+                <td>{{ nutricashbeneficiary.group_representative }}</td>
+                <th>Age</th>
+                <td>{{ nutricashbeneficiary.age }}</td>
+            </tr>
+            <tr>
+                <th>Enrollment Gestational Age</th>
+                <td>{{ nutricashbeneficiary.enrollment_gestational_age }}</td>
+                <th>Expected Delivery Date</th>
+                <td>{{ nutricashbeneficiary.expected_delivery_date }}</td>
+            </tr>
+            <tr>
+                <th>Pregnant or Lactating</th>
+                <td>{{ nutricashbeneficiary.pregnant_or_lactating }}</td>
+            </tr>
+        </table>
+        <table>
+            <tr>
+                <th colspan="4">Nutricash Details</th>
+            </tr>
+            {% for detail in spnutricash_details %}
+            <tr>
+                <td>Disbursement Date: {{ detail.disbursement_date }}</td>
+                <td>Transfer Value: {{ detail.transfer_value }}</td>
+                <td>Nationality: {{ detail.actual_nationality }}</td>
+                <td>Region: {{ detail.actual_region }}</td>
+                <td>District: {{ detail.actual_district }}</td>
+                <td>Settlement: {{ detail.actual_settlement }}</td>
+                <td>ID Type: {{ detail.actual_ID_type }}</td>
+                <td>ID Number: {{ detail.actual_ID_number }}</td>
+                <td><a href="{% url 'spnutricash_update' detail.id %}">Update</a></td>
+            </tr>
+            {% endfor %}
+        </table>
+        
+
+
+        <a href="{% url 'spnutricash_create' nutricashbeneficiary.pk %}" class="add-button">Add Nutricash Details</a>
+        <!-- <a href="{% url 'spnutricash_update'  nutricashbeneficiary.pk %}" class="add-button">Update Nutricash Details</a> -->
+</body>
+    </div>
+</body>
+</html>
+{% endblock %}

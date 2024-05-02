@@ -1,117 +1,44 @@
 {% extends 'base.html' %}
-
+{% load static %}
 
 {% block content %}
-{% load static %}
 <!doctype html>
 
 <head>
     <title>Beneficiary/Participant Enrollment</title>
     <meta charset='utf-8'>
     <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" media="all">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="(link unavailable)"></script>
     <script type="module" src="{% static 'js/index.js' %}"></script>
 
 </head>
 <body>
   <h1>Enroll Beneficiary</h1>
-  <div  class="contentarea">
-    <div class="contentarea">
-        <div class="Input">
-<!-- Render form fields manually, excluding participant_photo -->
-                  <form method="POST" name="inputForm" enctype='multipart/form-data' id="beneficiaryForm" data-pk="{{ group.pk }}">
-                 
-                    {% csrf_token %}
+  <form method="POST">
+    {% csrf_token %}
+    <table>
+        {{ form.as_table }}
 
-                    <div id="camera" class="camera">
-                        <video id="video">Video stream not available.</video>
-                        <button id="startbutton" type="button">Take photo</button>
-                        <input type="file" name="participant_photo" id="id_participant_photo" style="display: none;">
-                        
-                        <canvas id="canvas"></canvas>
-                    </div>
+        {% if form.errors %}
+        <tr>
+            <td colspan="2">
+                <div class="alert alert-danger">
+                    <strong>Error:</strong> There are errors in the form. Please correct them and try again.
+                    <ul>
+                        {% for field, errors in form.errors.items %}
+                            <li>{{ field }}: {{ errors.0 }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </td>
+        </tr>
+        {% endif %}
+    </table>
 
-                    <br>
-
-                    <div>
-                        <img id="photo" alt="participant_photo">
-                    </div>
-
-                    <br>
-
-
-                    <!-- Add other form fields manually -->
-                    <label for="{{ form.participant_photo.id }}">Participant Photo:</label>
-                    <!-- You can customize the appearance of the file input if needed -->
-                    <input type="file" name="{{ form.participant_photo.name }}" id="{{ form.participant_photo.id }}" style="display: none;">
-
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Region:</label>
-                    {{ form.region }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">District:</label>
-                    {{ form.district }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Settlement:</label>
-                    {{ form.settlement }}
-                    <label for="{{ form.region.id }}">Nationality:</label>
-                    {{ form.nationality }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Household ID:</label>
-                    {{ form.household_id }}
-                    <label for="{{ form.region.id }}">Name of Household Head:</label>
-                    {{ form.name_of_household_head }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Household head phone:</label>
-                    {{ form.household_head_phone }}
-                    <label for="{{ form.region.id }}">Gender of participant:</label>
-                    {{ form.gender_of_participant }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Participant age:</label>
-                    {{ form.participant_age }}
-
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Relationship with Household head:</label>
-                    {{ form.relationship_with_household_head }}
-                    <label for="{{ form.region.id }}">Gender of Household head:</label>
-                    {{ form.gender_hhh }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Age of Household head:</label>
-                    {{ form.age_of_hhh }}
-                    <label for="{{ form.region.id }}">Disablity status of household head:</label>
-                    {{ form.disablity_of_hhh }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Marital status:</label>
-                    {{ form.marital_status }}
-                    <label for="{{ form.region.id }}">Educational level:</label>
-                    {{ form.education_level }}
-                    <!-- Add other form fields here -->
-                    <label for="{{ form.region.id }}">Religion:</label>
-                    {{ form.religion }}
-                    <label for="{{ form.region.id }}">Does Household own any livestock?:</label>
-                    {{ form.household_own_any_livestock }}
-
-
-                    <!-- ... Add other form fields ... -->
-
-                    <input type="text" id="webimg" name="webimg" style="display: none;">
-
-                    <button type="submit" class="button" id="submit">Submit</button>
-                </form>
-                
-{% if form.errors %}
-<div class="alert alert-danger">
-  <strong>Error:</strong> There are errors in the form. Please correct them and try again.
-  <ul>
-    {% for field, errors in form.errors.items %}
-      <li>{{ field }}: {{ errors.0 }}</li>
-    {% endfor %}
-  </ul>
-</div>
-{% endif %}
-</div>
-
+    <div class="form-submit">
+        <button type="submit" class="submit-button">Submit</button>
+    </div>
+  </form>
+</body>
 </html>
-
-
 {% endblock %}

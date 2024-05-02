@@ -6,7 +6,7 @@
 <head>
   <style>
 body {
-  font-family: 'Calibri', sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   margin: 0;
   padding: 0;
   background-color: #f2f2f2;
@@ -14,19 +14,19 @@ body {
 
 h1, h2 {
   text-align: center;
-  color: #111;
+  color: #fcfafa;
 }
 
 h1 {
   margin-top: 2em;
   background-color: #115299;
-  font-size: 25px;
-  padding: 10px;
+  font-size: 2rem;
+  padding: 0.5em 1em;
   color: white;
 }
 
 h2 {
-  font-size: 18px;
+  font-size: 1.5rem;
   margin-top: 20px;
 }
 
@@ -37,7 +37,7 @@ table {
 }
 
 th, td {
-  padding: 10px;
+  padding: 1em;
   text-align: left;
   border-bottom: 1px solid #ccc;
 }
@@ -78,84 +78,84 @@ th {
 .semc_create-button2,
 .beneficiary_detail-button {
   display: inline-block;
-  padding: 5px 10px;
-  border: 1px solid #ccc;
+  padding: 0.5em 1em;
+  border: 1px solid transparent;
   border-radius: 5px;
-  font-size: 0.7rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .create-button {
   background-color: #539f38;
-  color: #669071;
+  color: #fff;
 }
 
 .update-button {
   background-color: #2196f3;
-  color: white;
+  color: #fff;
 }
 
 .delete-button {
   background-color: #f44336;
-  color: white;
+  color: #fff;
 }
 
 .semc_create-button,
 .semc_create-button2 {
   background-color: #4caf50;
-  color: white;
+  color: #fff;
 }
 
 .beneficiary_detail-button {
   background-color: #5da166;
-  color: white;
+  color: #fff;
 }
 
-    .meter {
-        width: 100%;
-        height: 20px;
-        background-color: #ccc;
-        border-radius: 5px;
-    }
+.meter {
+  width: 100%;
+  height: 20px;
+  background-color: #f0f0f0;
+  border-radius: 5px;
+}
 
-    .meter span {
-        display: block;
-        height: 100%;
-        width: 0;
-        background-color: #4caf50;
-        border-radius: 5px;
-        transition: width 0.5s ease;
-    }
+.meter span {
+  display: block;
+  height: 100%;
+  width: 0;
+  background-color: #4caf50;
+  border-radius: 5px;
+  transition: width 0.5s ease;
+}
 
 
+.section-heading {
+  position: relative;
+  text-align: center;
+  font-size: 1.5rem;
+  margin-top: 20px;
+  z-index: 1; /* Ensure the heading stays on top */
+}
 
-      .meter {
-      width: 100%;
-      height: 20px; /* Adjust the height as needed */
-      background-color: #ccc; /* Background color of the meter */
-      border-radius: 5px; /* Rounded corners for the meter */
-    }
+.section-heading::after {
+  content: "";
+  display: block;
+  width: 100%; /* Adjust the width of the band */
+  height: 40px; /* Adjust the thickness of the band */
+  background-color: #0e2858; /* Adjust the color of the band */
+  position: absolute;
+  bottom: -9px; /* Adjust the distance of the band from the heading */
+  left: 0;
+  z-index: -1; /* Push the band behind the heading */
+  border-radius: 5px; /* Adjust the border-radius if needed */
+}
 
-    .meter span {
-      display: block;
-      height: 100%;
-      width: 0;
-      background-color: #4caf50; /* Color of the filled part of the meter */
-      border-radius: 5px; /* Match the border-radius of the meter */
-      transition: width 0.5s ease; /* Add animation for smooth progress */
-    }
 
-    .profile-photo {
-      width: 150px;
-      height: 150px;
-      border-radius: 50%;
-      object-fit: cover;
-      margin: 0 auto;
-    }
 
     </style>
 </head>
 <body>
-    <h1 style="text-align: center; margin-top: 2em; color: rgb(12, 12, 12);">Beneficiary Details for <span style="color: white;">{{ beneficiary.name_of_household_head }}</span></h1><span style="color:rgb(241, 244, 242)">{{ person.Client_Name }}</span></h1>
+    <h1 style="text-align: center; margin-top: 2em; color: rgb(12, 12, 12);">Beneficiary Details for <span style="color: white;">{{ beneficiary.name_of_participant }}</span></h1><span style="color:rgb(241, 244, 242)">{{ person.Client_Name }}</span></h1>
     <table>
         <tr>
           
@@ -172,6 +172,7 @@ th {
             <th>District</th>
             <th>Settlement</th>
             <th>Household ID</th>
+            <th>Name of Participant</th>
             <th>Name of Household head</th>
             <th>Household head phone number</th>>
             <th>Participant gender</th>
@@ -183,7 +184,6 @@ th {
             <th>Marital status </th>
             <th>Educational level</th>
             <th>Religion</th>
-            <th>Household own any livestock</th>
             <th>member id</th>
         </tr>
         <tr>
@@ -194,6 +194,7 @@ th {
             <td>{{ beneficiary.district }}</td>
             <td>{{ beneficiary.settlement }}</td>
             <td>{{ beneficiary.household_id }}</td>
+            <td>{{ beneficiary.name_of_participant }}</td>
             <td>{{ beneficiary.name_of_household_head }}</td>
             <td>{{ beneficiary.household_head_phone }}</td>
             <td>{{ beneficiary.gender_of_participant }}</td>
@@ -206,7 +207,6 @@ th {
             <td>{{ beneficiary.marital_status }}</td>
             <td>{{ beneficiary.education_level }}</td>
             <td>{{ beneficiary.religion }}</td>
-            <td>{{ beneficiary.household_own_any_livestock }}</td>
             <td>{{ beneficiary.id }}</td>
  
 
@@ -226,13 +226,54 @@ th {
 </td>
 
 </p>
+<p>
+  <a href="{% url 'add_nutricash_beneficiary' beneficiary.pk %}" class="beneficiary_detail-button">Add Nutricash Beneficiary</a>
+</p>
+
+
+<div>
+  <h2 class="section-heading">Nutricash Beneficiaries</h2>
+
+  {% if nutricash_beneficiaries %}
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>ID Type</th>
+          <th>ID Number</th>
+          <th>Pregnant or Lactating</th>
+          <th>Beneficiary Status</th>
+          <th>Action buttons</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for nutricashbeneficiary in nutricash_beneficiaries %}
+        <tr>
+          <td>{{ nutricashbeneficiary.nutricash_beneficiary_name }}</td>
+          <td>{{ nutricashbeneficiary.ID_type }}</td>
+          <td>{{ nutricashbeneficiary.ID_number }}</td>
+          <td>{{ nutricashbeneficiary.pregnant_or_lactating }}</td>
+          <td>{{ nutricashbeneficiary.beneficiary_status }}</td>
+          <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+            <a href="{% url 'spnutricash_update' nutricashbeneficiary.pk %}" class="update-button">Update</a>
+            <a href="{% url 'nutricashbeneficiary_delete' nutricashbeneficiary.pk %}" class="delete-button">Delete</a>
+            <a href="{% url 'nutricashbeneficiary_detail' nutricashbeneficiary.pk %}" class="detail-button">View Details</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No Nutricash beneficiary associated with this beneficiary.</p>
+  {% endif %}
+</div>
+<!-- <a href="{% url 'spnutricash_create' beneficiary.pk %}"  class="spnutricash_create-button">Add Nutricash Beneficiary Record</a> -->
 
 
 
 
 
-
-    <h2>SEMC Coaching records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</span></h1></h2>
+    <h2 class="section-heading">SEMC Coaching records for <span style="color: rgb(218, 243, 73);">{{ beneficiary.name_of_household_head }}</span></h1></h2>
     {% if semcmentoringcoaching_details %}
     <table>
       <tr>
@@ -280,7 +321,7 @@ th {
 <!-- ... (rest of the code) ... -->
 
 
-<h2>SEMC Community Participation records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+<h2 class="section-heading">SEMC Community Participation records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
 {% if semccommunityparticipation_details %}
 <table>
   <tr>
