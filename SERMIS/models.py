@@ -9,6 +9,8 @@ from django.utils import timezone
 from django.db.models import Q
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.utils import timezone
+from datetime import datetime
 
 class Group(models.Model):
         
@@ -329,7 +331,7 @@ class Beneficiary(models.Model):
         group.save()
    
     def __str__(self):
-            return self.name_of_household_head
+            return self.name_of_participant
     
 class SAGEBeneficiary(models.Model):
     STATUS_CHOICES = (
@@ -375,22 +377,22 @@ class SAGEBeneficiary(models.Model):
     actual_settlement = models.CharField(max_length=35, blank=True)
 
 
-@receiver(post_save, sender=SAGEBeneficiary)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.nationality
-        if beneficiary_instance:
-            instance.actual_nationality = beneficiary_instance.nationality
-        beneficiary_instance = instance.region
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-        beneficiary_instance = instance.district
-        if beneficiary_instance:
-            instance.actual_district = beneficiary_instance.district
-        beneficiary_instance = instance.settlement
-        if beneficiary_instance:
-            instance.actual_settlement = beneficiary_instance.settlement
-        instance.save()
+# @receiver(post_save, sender=SAGEBeneficiary)
+# def update_actual_names(sender, instance, created, **kwargs):
+#     if created:
+#         beneficiary_instance = instance.nationality
+#         if beneficiary_instance:
+#             instance.actual_nationality = beneficiary_instance.nationality
+#         beneficiary_instance = instance.region
+#         if beneficiary_instance:
+#             instance.actual_region = beneficiary_instance.region
+#         beneficiary_instance = instance.district
+#         if beneficiary_instance:
+#             instance.actual_district = beneficiary_instance.district
+#         beneficiary_instance = instance.settlement
+#         if beneficiary_instance:
+#             instance.actual_settlement = beneficiary_instance.settlement
+#         instance.save()
 
   
 
@@ -437,6 +439,7 @@ class NutricashBeneficiary(models.Model):
     pregnant_or_lactating = models.CharField(max_length=22, choices=PREGLACT_CHOICES)
     beneficiary_status = models.CharField(max_length=32, choices=STATUS_CHOICES)
     created_at = models.DateTimeField(default=timezone.now)
+    
 
     # Additional fields to store actual names
     actual_nationality = models.CharField(max_length=35, blank=True)
@@ -445,406 +448,16 @@ class NutricashBeneficiary(models.Model):
     actual_settlement = models.CharField(max_length=35, blank=True)
 
 
-@receiver(post_save, sender=NutricashBeneficiary)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.nationality
-        if beneficiary_instance:
-            instance.actual_nationality = beneficiary_instance.nationality
-        beneficiary_instance = instance.region
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-        beneficiary_instance = instance.district
-        if beneficiary_instance:
-            instance.actual_district = beneficiary_instance.district
-        beneficiary_instance = instance.settlement
-        if beneficiary_instance:
-            instance.actual_settlement = beneficiary_instance.settlement
-        instance.save()
+    exit_date = models.DateField(blank=True, null=True)
 
- 
-
-class FinlitBeneficiary(models.Model):
-        STATUS_CHOICES = (
-            ('Enrolled', 'Enrolled'),
-            ('Re-enrolled', 'Re-enrolled'),
-            ('Exited', 'Exited'),
-            ('Temporarily transferred to TSFP', 'Temporarily transferred to TSFP'),
-        ) 
-        IDtype_CHOICES = (
-            ('NIN', 'NIN'),
-            ('Attestation Individual Number', 'Attestation Individual Number'),
-            ('KSRN Number', 'KSRN Number'),
-            ('Next of Kin NIN', 'Next of Kin NIN'),
-            ('Next of Kin AIN', 'Next of Kin AIN'),
-            ('Other government issued ID', 'Other government issued ID'),
-        )
-        GENDER_CHOICES = (
-             ('Male', 'Male'),
-             ('Female', 'Female')
-        )
+    def save(self, *args, **kwargs):
+        # Calculate the exit date by adding 24 months to the expected delivery date
+        if self.expected_delivery_date:
+            self.exit_date = self.expected_delivery_date + timezone.timedelta(days=730)
+        else:
+            self.exit_date = None
         
-
-        profiling_date = models.DateTimeField(default=timezone.now)
-        nationality = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_nationality')
-        region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_region')
-        district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_district')
-        settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_settlement')   
-        candidate_name = models.CharField(max_length=50)
-        candidate_age = models.IntegerField(validators=[MaxValueValidator(99, message="2 digits maximum" )])
-        candidate_gender = models.CharField(max_length=8, choices=GENDER_CHOICES) 
-        household_id = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_household_id')
-        ID_type = models.CharField(max_length=30, choices=IDtype_CHOICES, default='NIN')  
-        candidate_individual_id = models.CharField(max_length=12)
-        group_representative = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_group_representative')
-        beneficiary_status = models.CharField(max_length=32, choices=STATUS_CHOICES)
-        created_at = models.DateTimeField(default=timezone.now) 
-
-
-class SEMCCommunityParticipation(models.Model):
-    DISTRICT_CHOICES = (
-        ('Koboko', 'Koboko'),
-        ('Lamwo', 'Lamwo'),
-        ('Isingiro', 'Isingiro'),
-        ('Kamwenge', 'Kamwenge'),
-    )
-    SETTLEMENT_CHOICES = (
-        ('Lobule', 'Lobule'),
-        ('Palabek', 'Palabek'),
-        ('Nakivale', 'Nakivale'),
-        ('Oruchinga', 'Oruchinga'),
-        ('Rwamwanja', 'Rwamwanja'),
-    )
-    NATIONALITY_CHOICES = (
-        ('Uganda', 'Uganda'),
-        ('Congo', 'Congo'),
-        ('Sudan', 'Sudan'),
-        ('South Sudan', 'South Sudan'),
-    )
-    REGION_CHOICES = (
-        ('South West', 'South West'),
-        ('West Nile', 'West Nile'),
-        ('Karamoja', 'Karamoja')
-    )
-    TOPIC_CHOICES = (
-        ('Gender', 'Gender'),
-        ('WASH', 'WASH'),
-        ('Communication and life skills', 'Communication and life skills')
-    )
-
-    CP_CHOICES = (
-        ('WFP', 'WFP'),
-        ('AFI', 'AFI'),
-        ('KRC', 'KRC'),
-        ('ACF', 'ACF'),
-        ('FHI', 'FHI'),
-        ('MTI', 'MTI'),
-        ('LWF', 'LWF'),
-        ('FHU', 'FHU'),
-    )
-
-    provider = models.CharField(max_length=20, choices=CP_CHOICES)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='community_participation_group')
-    meeting_date = models.DateField()        
-    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_beneficiary')
-    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_region')
-    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_district')
-    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_settlement')        
-    topic_of_discussion = models.CharField(max_length=100, choices=TOPIC_CHOICES)
-    component = models.CharField(max_length=10, default='SEMC')
-    
-    # Actual field names
-    actual_group = models.CharField(max_length=100)  # Store actual group name
-    actual_region = models.CharField(max_length=35)  # Store actual region name
-    actual_district = models.CharField(max_length=35)  # Store actual district name
-    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
-
-    def save(self, *args, **kwargs):
-        # If the group and beneficiary are not already set, set them automatically
-        if not self.group_id:
-            self.group = self.beneficiary.group
-
         super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name_plural = "Community Participation Details"
-
-    def __str__(self):
-        return f"Community Participation Details for {self.beneficiary.name_of_household_head}"   
-
-# Receiver to update actual field names
-@receiver(post_save, sender=SEMCCommunityParticipation)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()
-
-class SEMCSBCC(models.Model):
-    DISTRICT_CHOICES = (
-        ('Koboko', 'Koboko'),
-        ('Lamwo', 'Lamwo'),
-        ('Isingiro', 'Isingiro'),
-        ('Kamwenge', 'Kamwenge'),
-    )
-    SETTLEMENT_CHOICES = (
-        ('Lobule', 'Lobule'),
-        ('Palabek', 'Palabek'),
-        ('Nakivale', 'Nakivale'),
-        ('Oruchinga', 'Oruchinga'),
-        ('Rwamwanja', 'Rwamwanja'),
-    )
-    NATIONALITY_CHOICES = (
-        ('Uganda', 'Uganda'),
-        ('Congo', 'Congo'),
-        ('Sudan', 'Sudan'),
-        ('South Sudan', 'South Sudan'),
-    )
-    REGION_CHOICES = (
-        ('South West', 'South West'),
-        ('West Nile', 'West Nile'),
-        ('Karamoja', 'Karamoja')
-    )
-    TOPIC_CHOICES = (
-        ('Gender', 'Gender'),
-        ('WASH', 'WASH'),
-        ('Communication and life skills', 'Communication and life skills')
-    )
-    CP_CHOICES = (
-        ('WFP', 'WFP'),
-        ('AFI', 'AFI'),
-        ('KRC', 'KRC'),
-        ('ACF', 'ACF'),
-        ('FHI', 'FHI'),
-        ('MTI', 'MTI'),
-        ('LWF', 'LWF'),
-        ('FHU', 'FHU'),
-    )
-
-    provider = models.CharField(max_length=20, choices=CP_CHOICES)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='sbcc_group')
-    meeting_date = models.DateField()
-    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_beneficiary')
-    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_region')
-    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_district')
-    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_settlement')         
-    topic_of_discussion = models.CharField(max_length=100, choices=TOPIC_CHOICES)    
-    component = models.CharField(max_length=10, default='SEMC')
-    
-    # Actual field names
-    actual_group = models.CharField(max_length=100)  # Store actual group name
-    actual_region = models.CharField(max_length=35)  # Store actual region name
-    actual_district = models.CharField(max_length=35)  # Store actual district name
-    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
-
-    def save(self, *args, **kwargs):
-        # If the group and beneficiary are not already set, set them automatically
-        if not self.group_id:
-            self.group = self.beneficiary.group
-
-        super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name_plural = "SBCC Details"
-
-    def __str__(self):
-        return f"SBCC Details for {self.beneficiary.name_of_household_head}"   
-
-# Receiver to update actual field names
-@receiver(post_save, sender=SEMCSBCC)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()  
-
-
-class SEMCMentoringCoaching(models.Model):
-    DISTRICT_CHOICES = (
-        ('Koboko', 'Koboko'),
-        ('Lamwo', 'Lamwo'),
-        ('Isingiro', 'Isingiro'),
-        ('Kamwenge', 'Kamwenge'),
-    )
-    SETTLEMENT_CHOICES = (
-        ('Lobule', 'Lobule'),
-        ('Palabek', 'Palabek'),
-        ('Nakivale', 'Nakivale'),
-        ('Oruchinga', 'Oruchinga'),
-        ('Rwamwanja', 'Rwamwanja'),
-    )
-    NATIONALITY_CHOICES = (
-        ('Uganda', 'Uganda'),
-        ('Congo', 'Congo'),
-        ('Sudan', 'Sudan'),
-        ('South Sudan', 'South Sudan'),
-    )
-    REGION_CHOICES = (
-        ('South West', 'South West'),
-        ('West Nile', 'West Nile'),
-        ('Karamoja', 'Karamoja')
-    )
-    TOPIC_CHOICES = (
-        ('On farm', 'On farm'),
-        ('Non farm', 'Non farm'),        
-    )
-    CP_CHOICES = (
-        ('WFP', 'WFP'),
-        ('AFI', 'AFI'),
-        ('KRC', 'KRC'),
-        ('ACF', 'ACF'),
-        ('FHI', 'FHI'),
-        ('MTI', 'MTI'),
-        ('LWF', 'LWF'),
-        ('FHU', 'FHU'),
-    )
-
-    provider = models.CharField(max_length=20, choices=CP_CHOICES)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='mentoring_coaching_group')
-    meeting_date = models.DateField()
-    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_beneficiary')
-    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_region')
-    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_district')
-    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_settlement')       
-    mentor_name =  models.CharField(max_length=30)
-    topic_of_discussion = models.CharField(max_length=100, choices=TOPIC_CHOICES)
-    component = models.CharField(max_length=10, default='SEMC')
-    
-    # Actual field names
-    actual_group = models.CharField(max_length=100)  # Store actual group name
-    actual_region = models.CharField(max_length=35)  # Store actual region name
-    actual_district = models.CharField(max_length=35)  # Store actual district name
-    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
-
-    def save(self, *args, **kwargs):
-        # If the group and beneficiary are not already set, set them automatically
-        if not self.group_id:
-            self.group = self.beneficiary.group
-
-        super().save(*args, **kwargs)
-
-    class Meta:
-        verbose_name_plural = "Mentoring and Coaching Details"
-
-    def __str__(self):
-        return f"Mentoring and Coaching Details for {self.beneficiary.name_of_household_head}"   
-
-# Receiver to update actual field names
-@receiver(post_save, sender=SEMCMentoringCoaching)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()
-
-       
-        
-
-class SPGFA(models.Model):
-    YESNO_CHOICES = (
-        ('Yes', 'Yes'),
-        ('No', 'No'),
-    )
-    GENDER_CHOICES = (
-        ('Male', 'Male'),
-        ('Female', 'Female'),
-    )
-    DISTRICT_CHOICES = (
-        ('Koboko', 'Koboko'),
-        ('Lamwo', 'Lamwo'),
-        ('Isingiro', 'Isingiro'),
-        ('Kamwenge', 'Kamwenge'),
-    )
-    SETTLEMENT_CHOICES = (
-        ('Lobule', 'Lobule'),
-        ('Palabek', 'Palabek'),
-        ('Nakivale', 'Nakivale'),
-        ('Oruchinga', 'Oruchinga'),
-        ('Rwamwanja', 'Rwamwanja'),
-    )
-    NATIONALITY_CHOICES = (
-        ('Uganda', 'Uganda'),
-        ('Congo', 'Congo'),
-        ('Sudan', 'Sudan'),
-        ('South Sudan', 'South Sudan'),
-    )
-    REGION_CHOICES = (
-        ('South West', 'South West'),
-        ('West Nile', 'West Nile'),
-        ('Karamoja', 'Karamoja')
-    )        
-    COMPONENT_CHOICES = (
-        ('SEMC', 'SEMC'),
-        ('SP', 'SP'),
-        ('LPD', 'LPD'),
-        ('DFI', 'DFI'),
-    )
-
-    CP_CHOICES = (
-        ('WFP', 'WFP'),
-        ('AFI', 'AFI'),
-        ('KRC', 'KRC'),
-        ('ACF', 'ACF'),
-        ('FHI', 'FHI'),
-        ('MTI', 'MTI'),
-        ('LWF', 'LWF'),
-        ('FHU', 'FHU'),
-    )
-
-    provider = models.CharField(max_length=20, choices=CP_CHOICES)
-    disbursement_date = models.DateField()
-    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_beneficiary')        
-    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_region')
-    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_district')
-    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_settlement') 
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='gfa_group')
-    household_beneficiary_name = models.CharField(max_length=25)
-    transfer_value = models.PositiveIntegerField(validators=[MaxValueValidator(999999999)])
-    component = models.CharField(max_length=10, default='SP')
-
-    # Actual field names
-    actual_region = models.CharField(max_length=35)  # Store actual region name
-    actual_district = models.CharField(max_length=35)  # Store actual district name
-    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
-    actual_group = models.CharField(max_length=100)  # Store actual group name
-
-    def save(self, *args, **kwargs):
-        # If the group and beneficiary are not already set, set them automatically
-        if not self.group_id:
-            self.group = self.beneficiary.group
-
-        super().save(*args, **kwargs)
-    
-    class Meta:
-        verbose_name_plural = "GFA Details"
-
-    def __str__(self):
-        return f"GFA Details for {self.beneficiary.name_of_household_head}"
-
-# Receiver to update actual field names
-@receiver(post_save, sender=SPGFA)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()
-
 
 
 
@@ -933,6 +546,453 @@ class SPNutricashDetails(models.Model):
         super().save(*args, **kwargs)
 
 
+class FinlitBeneficiary(models.Model):
+        STATUS_CHOICES = (
+            ('Enrolled', 'Enrolled'),
+            ('Re-enrolled', 'Re-enrolled'),
+            ('Exited', 'Exited'),
+            ('Temporarily transferred to TSFP', 'Temporarily transferred to TSFP'),
+        ) 
+        IDtype_CHOICES = (
+            ('NIN', 'NIN'),
+            ('Attestation Individual Number', 'Attestation Individual Number'),
+            ('KSRN Number', 'KSRN Number'),
+            ('Next of Kin NIN', 'Next of Kin NIN'),
+            ('Next of Kin AIN', 'Next of Kin AIN'),
+            ('Other government issued ID', 'Other government issued ID'),
+        )
+        GENDER_CHOICES = (
+             ('Male', 'Male'),
+             ('Female', 'Female')
+        )
+        
+
+        profiling_date = models.DateTimeField(default=timezone.now)
+        nationality = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_nationality')
+        region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_region')
+        district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_district')
+        settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_settlement')   
+        candidate_name = models.CharField(max_length=50)
+        candidate_age = models.IntegerField(validators=[MaxValueValidator(99, message="2 digits maximum" )])
+        candidate_gender = models.CharField(max_length=8, choices=GENDER_CHOICES) 
+        household_id = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_household_id')
+        ID_type = models.CharField(max_length=30, choices=IDtype_CHOICES, default='NIN')  
+        candidate_individual_id = models.CharField(max_length=12)
+        group_representative = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_beneficiaries_group_representative')
+        beneficiary_status = models.CharField(max_length=32, choices=STATUS_CHOICES)
+        created_at = models.DateTimeField(default=timezone.now) 
+
+        actual_nationality = models.CharField(max_length=35, blank=True)
+        actual_region = models.CharField(max_length=35, blank=True)
+        actual_district = models.CharField(max_length=35, blank=True)
+        actual_settlement = models.CharField(max_length=35, blank=True)
+
+
+class FinLitDetails(models.Model):
+   
+        YESNO_CHOICES = (
+            ('Yes', 'Yes'),
+            ('No', 'No'),
+            )
+        GENDER_CHOICES = (
+                ('Male', 'Male'),
+                ('Female', 'Female'),
+            )
+        DISTRICT_CHOICES = (
+            ('Koboko', 'Koboko'),
+            ('Lamwo', 'Lamwo'),
+            ('Isingiro', 'Isingiro'),
+            ('Kamwenge', 'Kamwenge'),
+        )
+        SETTLEMENT_CHOICES = (
+            ('Lobule', 'Lobule'),
+            ('Palabek', 'Palabek'),
+            ('Nakivale', 'Nakivale'),
+            ('Oruchinga', 'Oruchinga'),
+            ('Rwamwanja', 'Rwamwanja'),
+
+        )
+        NATIONALITY_CHOICES = (
+            ('Uganda', 'Uganda'),
+            ('Congo', 'Congo'),
+            ('Sundan', 'Sundan'),
+            ('South Sudan', 'South Sudan'),
+        )
+        REGION_CHOICES = (
+            ('South West', 'South West'),
+            ('West Nile', 'West Nile'),
+            ('Karamoja', 'Karamoja')
+        )
+        COMPONENT_CHOICES = (
+            ('SEMC', 'SEMC'),
+            ('SP', 'SP'),
+            ('LPD', 'LPD'),
+            ('DFI', 'DFI'),
+        )
+        DFISOFTCOMPONENT_CHOICES = (
+            ('Basic financial literacy training received', 'Basic financial literacy training received'),
+            ('Advanced financial literacy trainings received', 'Advanced financial literacy trainings received'),
+            ('Digital literacy training received', 'Digital literacy training received'),
+        )     
+        CP_CHOICES = (
+            ('WFP', 'WFP'),
+            ('AFI', 'AFI'),
+            ('KRC', 'KRC'),
+            ('ACF', 'ACF'),
+            ('FHI', 'FHI'),
+            ('MTI', 'MTI'),
+            ('LWF', 'LWF'),
+            ('FHU', 'FHU'),
+        )
+
+        provider = models.CharField(max_length=10, choices=CP_CHOICES)
+        finlit_candidate_name = models.ForeignKey(FinlitBeneficiary, on_delete=models.CASCADE, related_name='finlit_candidate')
+        group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='finlit_group')        
+        value_date = models.DateField()
+        nationality  = models.ForeignKey(FinlitBeneficiary, on_delete=models.CASCADE, related_name='finlit_nationality')        
+        region = models.ForeignKey(FinlitBeneficiary, on_delete=models.CASCADE, related_name='finlit_region')
+        district = models.ForeignKey(FinlitBeneficiary, on_delete=models.CASCADE, related_name='finlit_district')
+        settlement = models.ForeignKey(FinlitBeneficiary, on_delete=models.CASCADE, related_name='finlit_settlement')
+        DFI_Software_component_received = models.CharField(max_length=100, choices=DFISOFTCOMPONENT_CHOICES, verbose_name="Software Component received")
+        group_representative = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='finlit_details_group_representative')
+        component = models.CharField(max_length=10, default='LPD')
+
+        # Actual field names
+        actual_nationality = models.CharField(max_length=35) 
+        actual_region = models.CharField(max_length=35)  # Store actual region name
+        actual_district = models.CharField(max_length=35)  # Store actual district name
+        actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
+        actual_group = models.CharField(max_length=100)  # Store actual group name
+
+        def save(self, *args, **kwargs):
+            # If the group and beneficiary are not already set, set them automatically
+            if not self.group_id:
+                self.group = self.finlit_candidate_name.group_representative.group
+
+            super().save(*args, **kwargs)
+
+        class Meta:
+            verbose_name_plural = "FinLit Details"
+
+        def __str__(self):
+            return f"FinLit Details for {self.finlit_candidate_name}"
+        
+
+
+
+
+
+
+class SEMCCommunityParticipation(models.Model):
+    DISTRICT_CHOICES = (
+        ('Koboko', 'Koboko'),
+        ('Lamwo', 'Lamwo'),
+        ('Isingiro', 'Isingiro'),
+        ('Kamwenge', 'Kamwenge'),
+    )
+    SETTLEMENT_CHOICES = (
+        ('Lobule', 'Lobule'),
+        ('Palabek', 'Palabek'),
+        ('Nakivale', 'Nakivale'),
+        ('Oruchinga', 'Oruchinga'),
+        ('Rwamwanja', 'Rwamwanja'),
+    )
+    NATIONALITY_CHOICES = (
+        ('Uganda', 'Uganda'),
+        ('Congo', 'Congo'),
+        ('Sudan', 'Sudan'),
+        ('South Sudan', 'South Sudan'),
+    )
+    REGION_CHOICES = (
+        ('South West', 'South West'),
+        ('West Nile', 'West Nile'),
+        ('Karamoja', 'Karamoja')
+    )
+    TOPIC_CHOICES = (
+        ('Gender', 'Gender'),
+        ('WASH', 'WASH'),
+        ('Communication and life skills', 'Communication and life skills')
+    )
+
+    CP_CHOICES = (
+        ('WFP', 'WFP'),
+        ('AFI', 'AFI'),
+        ('KRC', 'KRC'),
+        ('ACF', 'ACF'),
+        ('FHI', 'FHI'),
+        ('MTI', 'MTI'),
+        ('LWF', 'LWF'),
+        ('FHU', 'FHU'),
+    )
+
+    provider = models.CharField(max_length=20, choices=CP_CHOICES)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='community_participation_group')
+    meeting_date = models.DateField()        
+    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_beneficiary')
+    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_region')
+    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_district')
+    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_settlement')        
+    topic_of_discussion = models.CharField(max_length=100, choices=TOPIC_CHOICES)
+    component = models.CharField(max_length=10, default='SEMC')
+    
+    # Actual field names
+    actual_group = models.CharField(max_length=100)  # Store actual group name
+    actual_region = models.CharField(max_length=35)  # Store actual region name
+    actual_district = models.CharField(max_length=35)  # Store actual district name
+    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
+
+    def save(self, *args, **kwargs):
+        # If the group and beneficiary are not already set, set them automatically
+        if not self.group_id:
+            self.group = self.beneficiary.group
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Community Participation Details"
+
+    def __str__(self):
+        return f"Community Participation Details for {self.beneficiary.name_of_participant}"   
+
+
+
+class SEMCSBCC(models.Model):
+    DISTRICT_CHOICES = (
+        ('Koboko', 'Koboko'),
+        ('Lamwo', 'Lamwo'),
+        ('Isingiro', 'Isingiro'),
+        ('Kamwenge', 'Kamwenge'),
+    )
+    SETTLEMENT_CHOICES = (
+        ('Lobule', 'Lobule'),
+        ('Palabek', 'Palabek'),
+        ('Nakivale', 'Nakivale'),
+        ('Oruchinga', 'Oruchinga'),
+        ('Rwamwanja', 'Rwamwanja'),
+    )
+    NATIONALITY_CHOICES = (
+        ('Uganda', 'Uganda'),
+        ('Congo', 'Congo'),
+        ('Sudan', 'Sudan'),
+        ('South Sudan', 'South Sudan'),
+    )
+    REGION_CHOICES = (
+        ('South West', 'South West'),
+        ('West Nile', 'West Nile'),
+        ('Karamoja', 'Karamoja')
+    )
+    TOPIC_CHOICES = (
+        ('Gender', 'Gender'),
+        ('WASH', 'WASH'),
+        ('Communication and life skills', 'Communication and life skills')
+    )
+    CP_CHOICES = (
+        ('WFP', 'WFP'),
+        ('AFI', 'AFI'),
+        ('KRC', 'KRC'),
+        ('ACF', 'ACF'),
+        ('FHI', 'FHI'),
+        ('MTI', 'MTI'),
+        ('LWF', 'LWF'),
+        ('FHU', 'FHU'),
+    )
+
+    provider = models.CharField(max_length=20, choices=CP_CHOICES)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='sbcc_group')
+    meeting_date = models.DateField()
+    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_beneficiary')
+    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_region')
+    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_district')
+    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_settlement')         
+    topic_of_discussion = models.CharField(max_length=100, choices=TOPIC_CHOICES)    
+    component = models.CharField(max_length=10, default='SEMC')
+    
+    # Actual field names
+    actual_group = models.CharField(max_length=100)  # Store actual group name
+    actual_region = models.CharField(max_length=35)  # Store actual region name
+    actual_district = models.CharField(max_length=35)  # Store actual district name
+    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
+
+    def save(self, *args, **kwargs):
+        # If the group and beneficiary are not already set, set them automatically
+        if not self.group_id:
+            self.group = self.beneficiary.group
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "SBCC Details"
+
+    def __str__(self):
+        return f"SBCC Details for {self.beneficiary.name_of_household_head}"   
+
+
+
+
+class SEMCMentoringCoaching(models.Model):
+    DISTRICT_CHOICES = (
+        ('Koboko', 'Koboko'),
+        ('Lamwo', 'Lamwo'),
+        ('Isingiro', 'Isingiro'),
+        ('Kamwenge', 'Kamwenge'),
+    )
+    SETTLEMENT_CHOICES = (
+        ('Lobule', 'Lobule'),
+        ('Palabek', 'Palabek'),
+        ('Nakivale', 'Nakivale'),
+        ('Oruchinga', 'Oruchinga'),
+        ('Rwamwanja', 'Rwamwanja'),
+    )
+    NATIONALITY_CHOICES = (
+        ('Uganda', 'Uganda'),
+        ('Congo', 'Congo'),
+        ('Sudan', 'Sudan'),
+        ('South Sudan', 'South Sudan'),
+    )
+    REGION_CHOICES = (
+        ('South West', 'South West'),
+        ('West Nile', 'West Nile'),
+        ('Karamoja', 'Karamoja')
+    )
+    TOPIC_CHOICES = (
+        ('On farm', 'On farm'),
+        ('Non farm', 'Non farm'),        
+    )
+    CP_CHOICES = (
+        ('WFP', 'WFP'),
+        ('AFI', 'AFI'),
+        ('KRC', 'KRC'),
+        ('ACF', 'ACF'),
+        ('FHI', 'FHI'),
+        ('MTI', 'MTI'),
+        ('LWF', 'LWF'),
+        ('FHU', 'FHU'),
+    )
+
+    provider = models.CharField(max_length=20, choices=CP_CHOICES)
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='mentoring_coaching_group')
+    meeting_date = models.DateField()
+    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_beneficiary')
+    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_region')
+    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_district')
+    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_settlement')       
+    mentor_name =  models.CharField(max_length=30)
+    topic_of_discussion = models.CharField(max_length=100, choices=TOPIC_CHOICES)
+    component = models.CharField(max_length=10, default='SEMC')
+    
+    # Actual field names
+    actual_group = models.CharField(max_length=100)  # Store actual group name
+    actual_region = models.CharField(max_length=35)  # Store actual region name
+    actual_district = models.CharField(max_length=35)  # Store actual district name
+    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
+
+    def save(self, *args, **kwargs):
+        # If the group and beneficiary are not already set, set them automatically
+        if not self.group_id:
+            self.group = self.beneficiary.group
+
+        super().save(*args, **kwargs)
+
+    class Meta:
+        verbose_name_plural = "Mentoring and Coaching Details"
+
+    def __str__(self):
+        return f"Mentoring and Coaching Details for {self.beneficiary.name_of_participant}"   
+
+
+
+       
+        
+
+class SPGFA(models.Model):
+    YESNO_CHOICES = (
+        ('Yes', 'Yes'),
+        ('No', 'No'),
+    )
+    GENDER_CHOICES = (
+        ('Male', 'Male'),
+        ('Female', 'Female'),
+    )
+    DISTRICT_CHOICES = (
+        ('Koboko', 'Koboko'),
+        ('Lamwo', 'Lamwo'),
+        ('Isingiro', 'Isingiro'),
+        ('Kamwenge', 'Kamwenge'),
+    )
+    SETTLEMENT_CHOICES = (
+        ('Lobule', 'Lobule'),
+        ('Palabek', 'Palabek'),
+        ('Nakivale', 'Nakivale'),
+        ('Oruchinga', 'Oruchinga'),
+        ('Rwamwanja', 'Rwamwanja'),
+    )
+    NATIONALITY_CHOICES = (
+        ('Uganda', 'Uganda'),
+        ('Congo', 'Congo'),
+        ('Sudan', 'Sudan'),
+        ('South Sudan', 'South Sudan'),
+    )
+    REGION_CHOICES = (
+        ('South West', 'South West'),
+        ('West Nile', 'West Nile'),
+        ('Karamoja', 'Karamoja')
+    )        
+    COMPONENT_CHOICES = (
+        ('SEMC', 'SEMC'),
+        ('SP', 'SP'),
+        ('LPD', 'LPD'),
+        ('DFI', 'DFI'),
+    )
+
+    CP_CHOICES = (
+        ('WFP', 'WFP'),
+        ('AFI', 'AFI'),
+        ('KRC', 'KRC'),
+        ('ACF', 'ACF'),
+        ('FHI', 'FHI'),
+        ('MTI', 'MTI'),
+        ('LWF', 'LWF'),
+        ('FHU', 'FHU'),
+    )
+
+    provider = models.CharField(max_length=20, choices=CP_CHOICES)
+    disbursement_date = models.DateField()
+    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_beneficiary')        
+    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_region')
+    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_district')
+    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_settlement') 
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='gfa_group')
+    household_beneficiary_name = models.CharField(max_length=25)
+    transfer_value = models.PositiveIntegerField(validators=[MaxValueValidator(999999999)])
+    component = models.CharField(max_length=10, default='SP')
+
+    # Actual field names
+    actual_region = models.CharField(max_length=35)  # Store actual region name
+    actual_district = models.CharField(max_length=35)  # Store actual district name
+    actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
+    actual_group = models.CharField(max_length=100)  # Store actual group name
+
+    def save(self, *args, **kwargs):
+        # If the group and beneficiary are not already set, set them automatically
+        if not self.group_id:
+            self.group = self.beneficiary.group
+
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name_plural = "GFA Details"
+
+    def __str__(self):
+        return f"GFA Details for {self.beneficiary.name_of_household_head}"
+
+
+
+
+
+
+
+
+
 
 
                 # self.actual_nationality = self.nutricash_beneficiary_name.nationality
@@ -1019,10 +1079,11 @@ class SPSAGEdetails(models.Model):
         name_of_participant = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sage_participant')
         group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='sage_group')        
         disbursement_date = models.DateField()
+        nationality = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sage_nationality')
         region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sage_region')
         district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sage_district')
-        ID_type = models.ForeignKey(NutricashBeneficiary, on_delete=models.CASCADE, related_name='sage_id_type')
-        ID_number = models.ForeignKey(NutricashBeneficiary, on_delete=models.CASCADE, related_name='sage_id_number') 
+        ID_type = models.ForeignKey(SAGEBeneficiary, on_delete=models.CASCADE, related_name='sage_id_type')
+        candidate_individual_id = models.ForeignKey(SAGEBeneficiary, on_delete=models.CASCADE, related_name='sage_id_number') 
         settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sage_settlement')
         sage_beneficiary_name = models.ForeignKey(SAGEBeneficiary, on_delete=models.CASCADE, related_name='sage_beneficiary')
         sage_beneficiary_dob = models.ForeignKey(SAGEBeneficiary, on_delete=models.CASCADE, related_name='sage_dob')
@@ -1031,36 +1092,56 @@ class SPSAGEdetails(models.Model):
         component = models.CharField(max_length=10, default='SP')
 
         # Actual field names
+        actual_nationality = models.CharField(max_length=35)
         actual_region = models.CharField(max_length=35)  # Store actual region name
         actual_district = models.CharField(max_length=35)  # Store actual district name
         actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
         actual_group = models.CharField(max_length=100)  # Store actual group name
+        actual_ID_type = models.CharField(max_length=40)  # Store actual ID type
+        actual_candidate_individual_id = models.CharField(max_length=40)  # Store actual ID number
 
 
         def save(self, *args, **kwargs):
-            # If the group and beneficiary are not already set, set them automatically
-            if not self.group_id:
-                self.group = self.beneficiary.group
+                # If the group and beneficiary are not already set, set them automatically
+                if not self.group_id:
+                    self.group = self.name_of_participant.group
 
-            super().save(*args, **kwargs)
+            # Calculate age based on the candidate's date of birth if it's provided
+                if self.sage_beneficiary_dob:
+                    # Access the date of birth from the associated SAGEBeneficiary instance
+                    dob = self.sage_beneficiary_dob.candidate_dob
+
+                    # Calculate the age
+                    age = datetime.today().year - dob.year
+
+                    # Check if the birthday has occurred this year already
+                    if (dob.month, dob.day) > (datetime.today().month, datetime.today().day):
+                        age -= 1  # Subtract 1 if birthday hasn't occurred yet this year
+
+                    self.sage_beneficiary_age = age
+                else:
+                    # Handle case when date of birth is not provided
+                    self.sage_beneficiary_age = None
+
+                super().save(*args, **kwargs)
                 
         class Meta:
             verbose_name_plural = "SAGE Details"
 
         def __str__(self):
-            return f"SAGE Details for {self.nutricash_beneficiary_name}"
+            return f"SAGE Details for {self.sage_beneficiary_name}"
 
-# Receiver to update actual field names
-@receiver(post_save, sender=SPSAGEdetails)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()   
+# # Receiver to update actual field names
+# @receiver(post_save, sender=SPSAGEdetails)
+# def update_actual_names(sender, instance, created, **kwargs):
+#     if created:
+#         beneficiary_instance = instance.beneficiary
+#         if beneficiary_instance:
+#             instance.actual_region = beneficiary_instance.region
+#             instance.actual_district = beneficiary_instance.district
+#             instance.actual_settlement = beneficiary_instance.settlement
+#             instance.actual_group = beneficiary_instance.group.group_name
+#         instance.save()   
 
 class LPDOnFarm(models.Model):
    
@@ -1152,17 +1233,17 @@ class LPDOnFarm(models.Model):
         def __str__(self):
             return f"LPD On-Farm Details for {self.beneficiary.name_of_household_head}"
 
-# Receiver to update actual field names
-@receiver(post_save, sender=LPDOnFarm)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()    
+# # Receiver to update actual field names
+# @receiver(post_save, sender=LPDOnFarm)
+# def update_actual_names(sender, instance, created, **kwargs):
+#     if created:
+#         beneficiary_instance = instance.beneficiary
+#         if beneficiary_instance:
+#             instance.actual_region = beneficiary_instance.region
+#             instance.actual_district = beneficiary_instance.district
+#             instance.actual_settlement = beneficiary_instance.settlement
+#             instance.actual_group = beneficiary_instance.group.group_name
+#         instance.save()    
 
 class LPDOffFarm(models.Model):
    
@@ -1260,17 +1341,17 @@ class LPDOffFarm(models.Model):
         def __str__(self):
             return f"LPD Off-Farm Details for {self.beneficiary.name_of_household_head}"
         
-# Receiver to update actual field names
-@receiver(post_save, sender=LPDOffFarm)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()
+# # Receiver to update actual field names
+# @receiver(post_save, sender=LPDOffFarm)
+# def update_actual_names(sender, instance, created, **kwargs):
+#     if created:
+#         beneficiary_instance = instance.beneficiary
+#         if beneficiary_instance:
+#             instance.actual_region = beneficiary_instance.region
+#             instance.actual_district = beneficiary_instance.district
+#             instance.actual_settlement = beneficiary_instance.settlement
+#             instance.actual_group = beneficiary_instance.group.group_name
+#         instance.save()
 
 
 class LPDNonFarm(models.Model):
@@ -1365,113 +1446,5 @@ class LPDNonFarm(models.Model):
         def __str__(self):
             return f"LPD Non-Farm Details for {self.beneficiary.name_of_household_head}"
 
-# Receiver to update actual field names
-@receiver(post_save, sender=LPDNonFarm)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()
 
 
-class DFI(models.Model):
-   
-        YESNO_CHOICES = (
-            ('Yes', 'Yes'),
-            ('No', 'No'),
-            )
-        GENDER_CHOICES = (
-                ('Male', 'Male'),
-                ('Female', 'Female'),
-            )
-        DISTRICT_CHOICES = (
-            ('Koboko', 'Koboko'),
-            ('Lamwo', 'Lamwo'),
-            ('Isingiro', 'Isingiro'),
-            ('Kamwenge', 'Kamwenge'),
-        )
-        SETTLEMENT_CHOICES = (
-            ('Lobule', 'Lobule'),
-            ('Palabek', 'Palabek'),
-            ('Nakivale', 'Nakivale'),
-            ('Oruchinga', 'Oruchinga'),
-            ('Rwamwanja', 'Rwamwanja'),
-
-        )
-        NATIONALITY_CHOICES = (
-            ('Uganda', 'Uganda'),
-            ('Congo', 'Congo'),
-            ('Sundan', 'Sundan'),
-            ('South Sudan', 'South Sudan'),
-        )
-        REGION_CHOICES = (
-            ('South West', 'South West'),
-            ('West Nile', 'West Nile'),
-            ('Karamoja', 'Karamoja')
-        )
-        COMPONENT_CHOICES = (
-            ('SEMC', 'SEMC'),
-            ('SP', 'SP'),
-            ('LPD', 'LPD'),
-            ('DFI', 'DFI'),
-        )
-        DFISOFTCOMPONENT_CHOICES = (
-            ('Basic financial literacy training received', 'Basic financial literacy training received'),
-            ('Advanced financial literacy trainings received', 'Advanced financial literacy trainings received'),
-            ('Digital literacy training received', 'Digital literacy training received'),
-        )     
-        CP_CHOICES = (
-            ('WFP', 'WFP'),
-            ('AFI', 'AFI'),
-            ('KRC', 'KRC'),
-            ('ACF', 'ACF'),
-            ('FHI', 'FHI'),
-            ('MTI', 'MTI'),
-            ('LWF', 'LWF'),
-            ('FHU', 'FHU'),
-        )
-
-        provider = models.CharField(max_length=20, choices=CP_CHOICES)
-        name_of_participant = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='dfi_participant')
-        group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='dfi_group')        
-        value_date = models.DateField()
-        region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='dfi_region')
-        district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='dfi_district')
-        settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='dfi_settlement')
-        DFI_Software_component_received = models.CharField(max_length=100, choices=DFISOFTCOMPONENT_CHOICES, verbose_name="Software Component received")
-        component = models.CharField(max_length=10, default='LPD')
-
-        # Actual field names
-        actual_region = models.CharField(max_length=35)  # Store actual region name
-        actual_district = models.CharField(max_length=35)  # Store actual district name
-        actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
-        actual_group = models.CharField(max_length=100)  # Store actual group name
-
-        def save(self, *args, **kwargs):
-            # If the group and beneficiary are not already set, set them automatically
-            if not self.group_id:
-                self.group = self.beneficiary.group
-
-            super().save(*args, **kwargs)
-
-        class Meta:
-            verbose_name_plural = "DFI Non-Farm Details"
-
-        def __str__(self):
-            return f"DFI Details for {self.beneficiary.name_of_household_head}"
-        
-        # Receiver to update actual field names
-@receiver(post_save, sender=DFI)
-def update_actual_names(sender, instance, created, **kwargs):
-    if created:
-        beneficiary_instance = instance.beneficiary
-        if beneficiary_instance:
-            instance.actual_region = beneficiary_instance.region
-            instance.actual_district = beneficiary_instance.district
-            instance.actual_settlement = beneficiary_instance.settlement
-            instance.actual_group = beneficiary_instance.group.group_name
-        instance.save()

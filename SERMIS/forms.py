@@ -1,5 +1,5 @@
 from django import forms
-from .models import Group, Beneficiary, SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, DFI, NutricashBeneficiary
+from .models import Group, Beneficiary, SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SAGEBeneficiary, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, FinlitBeneficiary, FinLitDetails, NutricashBeneficiary
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
@@ -44,7 +44,7 @@ class NutricashBeneficiaryForm(forms.ModelForm):
         exclude = ['group_representative', 'region', 'district',
                    'settlement', 'group_representative', 'nationality',
                    'actual_nationality', 'actual_region', 'actual_district',
-                   'actual_settlement', 'created_at'
+                   'actual_settlement', 'created_at', 'exit_date'
                    
                    ]
         fields = '__all__'
@@ -57,7 +57,12 @@ class NutricashBeneficiaryForm(forms.ModelForm):
 class SEMCMentoringCoachingForm(forms.ModelForm):
     class Meta:
         model = SEMCMentoringCoaching
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'beneficiary', 'nationality', 
+                   'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_group'
+                   
+                   ]
         fields = '__all__'
         
         widgets = {
@@ -68,7 +73,11 @@ class SEMCMentoringCoachingForm(forms.ModelForm):
 class SEMCCommunityParticipationForm(forms.ModelForm):
     class Meta:
         model = SEMCCommunityParticipation
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'beneficiary', 'nationality', 
+                   'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 
+                   ]
         fields = '__all__'
         
         widgets = {
@@ -112,17 +121,82 @@ class SPNutricashForm(forms.ModelForm):
         }
 
         
-
+class SAGEBeneficiaryForm(forms.ModelForm):
+    class Meta:
+        model = SAGEBeneficiary
+        exclude = ['group_representative', 'region', 'district',
+                   'settlement', 'group_representative', 'nationality',
+                   'actual_nationality', 'actual_region', 'actual_district',
+                   'actual_settlement', 'created_at', 'household_id'
+                   
+                   ]
+        fields = '__all__'
+        widgets = {
+            'profiling_date': forms.DateInput(attrs={'type': 'date'}),
+            'candidate_dob': forms.DateInput(attrs={'type': 'date'}),
+             
+        } 
 
 class SPSAGEForm(forms.ModelForm):
     class Meta:
         model = SPSAGEdetails
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'name_of_participant', 
+                   'sage_beneficiary_name', 'sage_beneficiary_dob', 'sage_beneficiary_age', 
+                   'nationality', 'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_ID_type', 
+                   'actual_candidate_individual_id', 'actual_group', 'candidate_individual_id'              
+                   
+                   
+                   
+                   ]
         fields = '__all__'
         
         widgets = {
             'disbursement_date': forms.DateInput(attrs={'type': 'date'}), 
         }            
+
+
+class FinlitBeneficiaryForm(forms.ModelForm):
+    class Meta:
+        model = FinlitBeneficiary
+        exclude = ['group_representative', 'region', 'district',
+                   'settlement', 'group_representative', 'nationality',
+                   'actual_nationality', 'actual_region', 'actual_district',
+                   'actual_settlement', 'created_at', 'household_id'
+                   
+                   ]
+        fields = '__all__'
+        widgets = {
+            'profiling_date': forms.DateInput(attrs={'type': 'date'}),
+            'candidate_dob': forms.DateInput(attrs={'type': 'date'}),
+             
+        } 
+
+class FinlitDetailsForm(forms.ModelForm):
+    class Meta:
+        model = FinLitDetails
+        exclude = ['group', 'finlit_candidate_name',                 
+                   'nationality', 'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_ID_type', 
+                   'actual_candidate_individual_id', 'actual_group', 'candidate_individual_id'              
+                   
+                   
+                   
+                   ]
+        fields = '__all__'
+        
+        widgets = {
+            'value_date': forms.DateInput(attrs={'type': 'date'}), 
+        } 
+
+
+
+
+
+
+
 
 class LPDOnFarmForm(forms.ModelForm):
     class Meta:
@@ -154,14 +228,14 @@ class LPDNonFarmForm(forms.ModelForm):
             'value_date': forms.DateInput(attrs={'type': 'date'}), 
         } 
 
-class DFIForm(forms.ModelForm):
-    class Meta:
-        model = DFI
-        exclude = ['group', 'beneficiary']
-        fields = '__all__'
+# class DFIForm(forms.ModelForm):
+#     class Meta:
+#         model = FinLitDetails
+#         exclude = ['group', 'beneficiary']
+#         fields = '__all__'
         
-        widgets = {
-            'value_date': forms.DateInput(attrs={'type': 'date'}), 
-        }                    
+#         widgets = {
+#             'value_date': forms.DateInput(attrs={'type': 'date'}), 
+        # }                    
 
 

@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Nutricash Beneficiary Details</title>
+    <title>Financial Literacy Beneficiary Details</title>
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -72,55 +72,43 @@
 </head>
 <body>
     <div class="container">
-        <h1>Nutricash Beneficiary Details for {{nutricashbeneficiary.nutricash_beneficiary_name}}</h1>
+        <h1>Financial Literacy Beneficiary Details for {{finlitbeneficiary.candidate_name}}</h1>
         <table>
             <tr>
                 <th>Profiling Date</th>
-                <td>{{ nutricashbeneficiary.profiling_date }}</td>
-                <th>Nutricash Beneficiary Name</th>
-                <td>{{ nutricashbeneficiary.nutricash_beneficiary_name }}</td>
+                <td>{{ finlitbeneficiary.profiling_date }}</td>
+                <th>FInancial Literacy Beneficiary Name</th>
+                <td>{{ finlitbeneficiary.candidate_name }}</td>
             </tr>
             <tr>
-                <th>Beneficiary Status</th>
-                <td>{{ nutricashbeneficiary.beneficiary_status }}</td>
                 <th>Nationality</th>
-                <td>{{ nutricashbeneficiary.actual_nationality }}</td>
+                <td>{{ finlitbeneficiary.actual_nationality }}</td>
             </tr>
             <tr>
                 <th>ID Type</th>
-                <td>{{ nutricashbeneficiary.ID_type }}</td>
+                <td>{{ finlitbeneficiary.ID_type }}</td>
                 <th>ID Number</th>
-                <td>{{ nutricashbeneficiary.ID_number }}</td>
+                <td>{{ finlitbeneficiary.candidate_individual_id }}</td>
             </tr>
             <tr>
                 <th>Group Representative</th>
-                <td>{{ nutricashbeneficiary.group_representative }}</td>
+                <td>{{ finlitbeneficiary.group_representative }}</td>
                 <th>Age</th>
-                <td>{{ nutricashbeneficiary.age }}</td>
+                <td>{{ finlitbeneficiary.candidate_age }}</td>
+                <th>Gender</th>
+                <td>{{ finlitbeneficiary.candidate_gender }}</td>
             </tr>
-            <tr>
-                <th>Enrollment Gestational Age</th>
-                <td>{{ nutricashbeneficiary.enrollment_gestational_age }}</td>
-                <th>Expected Delivery Date</th>
-                <td>{{ nutricashbeneficiary.expected_delivery_date }}</td>
-            </tr>
-            <tr>
-                <th>Pregnant or Lactating</th>
-                <td>{{ nutricashbeneficiary.pregnant_or_lactating }}</td>
 
-                <th>Exit Date</th>
-                <td>{{ nutricashbeneficiary.exit_date }}</td>
-             
-            </tr>
+
             <tr>
                 <th>Beneficiary Status</th>
                 <td>
-                    {% if nutricashbeneficiary.beneficiary_status == 'Exited' %}
-                        <span style="color: red">{{ nutricashbeneficiary.beneficiary_status }}</span>
+                    {% if finlitbeneficiary.beneficiary_status == 'Exited' %}
+                        <span style="color: red">{{ finlitbeneficiary.beneficiary_status }}</span>
                     {% elif nutricashbeneficiary.beneficiary_status == 'Enrolled' %}
-                        <span style="color: green">{{ nutricashbeneficiary.beneficiary_status }}</span>
+                        <span style="color: green">{{ finlitbeneficiary.beneficiary_status }}</span>
                     {% else %}
-                        {{ nutricashbeneficiary.beneficiary_status }}
+                        {{ finlitbeneficiary.beneficiary_status }}
                     {% endif %}
                 </td>
              
@@ -128,24 +116,22 @@
         </table>
         <table>
             <tr>
-                <th colspan="4">Nutricash Details for {{nutricashbeneficiary.nutricash_beneficiary_name}}</th>
+                <th colspan="4">Financial Literacy Details for {{finlitbeneficiary.candidate_name}}</th>
             </tr>
-            {% for detail in spnutricash_details %}
+            {% for detail in finlitbeneficiary_details %}
             <tr>
-                <td><b>Disbursement Date:</b> {{ detail.disbursement_date }}</td>
-                <td><b>Transfer Value:</b> {{ detail.transfer_value }}</td>
+                <td><b>Value Date:</b> {{ detail.value_date }}</td>
+                <td><b>Provider:</b> {{ detail.provider }}</td>
                 <td><b>Nationality:</b> {{ detail.actual_nationality }}</td>
                 <td><b>Region:</b> {{ detail.actual_region }}</td>
                 <td><b>District:</b> {{ detail.actual_district }}</td>
                 <td><b>Settlement:</b> {{ detail.actual_settlement }}</td>
-                <td><b>ID Type:</b> {{ detail.actual_ID_type }}</td>
-                <td><b>ID Number:</b> {{ detail.actual_ID_number }}</td>
-                
+                <td><b>DFI component received:</b> {{ detail.DFI_Software_component_received }}</td>                
                 <td>
-    <a href="{% url 'spnutricash_update' detail.id %}" class="btn btn-primary">Update</a>
+    <a href="{% url 'finlit_details_update' detail.id %}" class="btn btn-primary">Update</a>
 </td>
 <td>
-    <a href="{% url 'spnutricash_delete' detail.id %}" class="btn btn-danger">Delete</a>
+    <a href="{% url 'finlit_details_delete' detail.id %}" class="btn btn-danger">Delete</a>
 </td>
             </tr>
             {% endfor %}
@@ -153,8 +139,8 @@
         
 
 
-        <a href="{% url 'spnutricash_create' nutricashbeneficiary.pk %}" class="add-button">Add Nutricash Details</a>
-        <!-- <a href="{% url 'spnutricash_update'  nutricashbeneficiary.pk %}" class="add-button">Update Nutricash Details</a> -->
+        <a href="{% url 'finlit_details_create' finlitbeneficiary.pk %}" class="add-button">Add Fin Lit Details</a>
+    
 </body>
     </div>
 </body>

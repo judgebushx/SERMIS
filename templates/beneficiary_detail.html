@@ -64,7 +64,7 @@ th {
 
 .action-buttons a {
   text-decoration: none;
-  color: #007bff;
+  color: #f4f6f8;
 }
 
 .action-buttons a:hover {
@@ -92,7 +92,7 @@ th {
 }
 
 .update-button {
-  background-color: #2196f3;
+  background-color: #04a07e;
   color: #fff;
 }
 
@@ -149,9 +149,45 @@ th {
   z-index: -1; /* Push the band behind the heading */
   border-radius: 5px; /* Adjust the border-radius if needed */
 }
+.btn {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
 
+.btn-primary {
+    background-color: #0e6d32; /* Green */
+}
 
+.btn-danger {
+    background-color: #f44336; /* Red */
+}
 
+.btn:hover {
+    opacity: 0.8;
+}
+
+.btnx {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btnx-primary {
+    background-color: #0e6d32; /* Green */
+}
     </style>
 </head>
 <body>
@@ -227,7 +263,10 @@ th {
 
 </p>
 <p>
-  <a href="{% url 'add_nutricash_beneficiary' beneficiary.pk %}" class="beneficiary_detail-button">Add Nutricash Beneficiary</a>
+  <a href="{% url 'add_nutricash_beneficiary' beneficiary.pk %}" class="btn btn-primary">Add Nutricash Beneficiary</a> <a href="{% url 'add_sage_beneficiary' beneficiary.pk %}" class="btn btn-primary">Add SAGE Beneficiary</a>   <a href="{% url 'add_finlit_beneficiary' beneficiary.pk %}" class="btn btn-primary">Add Fin Lit Beneficiary</a>
+</p>
+<p>
+  
 </p>
 
 
@@ -255,7 +294,7 @@ th {
           <td>{{ nutricashbeneficiary.pregnant_or_lactating }}</td>
           <td>{{ nutricashbeneficiary.beneficiary_status }}</td>
           <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
-            <a href="{% url 'spnutricash_update' nutricashbeneficiary.pk %}" class="update-button">Update</a>
+            <a href="{% url 'nutricashbeneficiary_update' nutricashbeneficiary.pk %}" class="update-button">Update</a>
             <a href="{% url 'nutricashbeneficiary_delete' nutricashbeneficiary.pk %}" class="delete-button">Delete</a>
             <a href="{% url 'nutricashbeneficiary_detail' nutricashbeneficiary.pk %}" class="detail-button">View Details</a>
           </td>
@@ -269,11 +308,113 @@ th {
 </div>
 <!-- <a href="{% url 'spnutricash_create' beneficiary.pk %}"  class="spnutricash_create-button">Add Nutricash Beneficiary Record</a> -->
 
+<div>
+  <h2 class="section-heading">SAGE Beneficiaries</h2>
+
+  {% if sage_beneficiaries %}
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>ID Type</th>
+          <th>ID Number</th>
+
+          <th>Beneficiary Status</th>
+          <th>Action buttons</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for sagebeneficiary in sage_beneficiaries %}
+        <tr>
+          <td>{{ sagebeneficiary.candidate_name }}</td>
+          <td>{{ sagebeneficiary.ID_type }}</td>
+          <td>{{ sagebeneficiary.candidate_individual_id }}</td>
+>
+          <td>{{ sagebeneficiary.beneficiary_status }}</td>
+          <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+            <a href="{% url 'sagebeneficiary_update' sagebeneficiary.pk %}" class="update-button">Update</a>
+            <a href="{% url 'sagebeneficiary_delete' sagebeneficiary.pk %}" class="delete-button">Delete</a>
+            <a href="{% url 'sagebeneficiary_detail' sagebeneficiary.pk %}" class="detail-button">View Details</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No SAGE beneficiary associated with this beneficiary.</p>
+  {% endif %}
+</div>
 
 
 
 
-    <h2 class="section-heading">SEMC Coaching records for <span style="color: rgb(218, 243, 73);">{{ beneficiary.name_of_household_head }}</span></h1></h2>
+
+
+<div>
+  <h2 class="section-heading">Financial Literacy Beneficiaries</h2>
+
+  {% if finlit_beneficiaries %}
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>ID Type</th>
+          <th>ID Number</th>
+
+          <th>Beneficiary Status</th>
+          <th>Action buttons</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for finlit_beneficiary in finlit_beneficiaries %}
+        <tr>
+          <td>{{ finlit_beneficiary.candidate_name }}</td>
+          <td>{{ finlit_beneficiary.ID_type }}</td>
+          <td>{{ finlit_beneficiary.candidate_individual_id }}</td>
+>
+          <td>{{ finlit_beneficiary.beneficiary_status }}</td>
+          <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+            <a href="{% url 'finlitbeneficiary_update' finlit_beneficiary.pk %}" class="update-button">Update</a>
+            <a href="{% url 'finlitbeneficiary_delete' finlit_beneficiary.pk %}" class="delete-button">Delete</a>
+            <a href="{% url 'finlitbeneficiary_detail' finlit_beneficiary.pk %}" class="detail-button">View Details</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p>No Financial Literacy beneficiary associated with this beneficiary.</p>
+  {% endif %}
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <h2 class="section-heading">SEMC Coaching records for <span style="color: rgb(218, 243, 73);">{{ beneficiary.name_of_participant }}</span></h1></h2>
     {% if semcmentoringcoaching_details %}
     <table>
       <tr>
@@ -318,10 +459,10 @@ th {
     
 </ul>
 
-<!-- ... (rest of the code) ... -->
 
 
-<h2 class="section-heading">SEMC Community Participation records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+
+<h2 class="section-heading">SEMC Community Participation records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_participant }}</h2>
 {% if semccommunityparticipation_details %}
 <table>
   <tr>
@@ -665,51 +806,6 @@ th {
 <p>No LPD Non-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
 <a href="{% url 'lpdnonfarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD Non-Farm Record</a>
 {% endif %}
-
-
-
-<h2> DFI records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
-{% if dfi_details %}
-<table>
-  <tr>
-    <th>Value date</th>
-    <th>Provider</th>
-    <th>Group name</th>
-    <th>Beneficiary</th>
-    <th>Region</th>
-    <th>District</th>
-    <th>Settlement</th>
-    <th>DFI Software component received </th>      
-    <th>Component</th>
-    <th>Action buttons</th>
-  </tr>
-
-  {% for dfi_detail in dfi_details %}
-  <tr>
-    <td>{{ dfi_detail.value_date }}</td>
-    <td>{{ dfi_detail.provider }}</td>
-    <td>{{ dfi_detail.group.group_name }}</td>
-    <td>{{ dfi_detail.beneficiary }}</td>
-    <td>{{ dfi_detail.region }}</td>
-    <td>{{ dfi_detail.district }}</td>
-    <td>{{ dfi_detail.settlement }}</td>
-    <td>{{ dfi_detail.DFI_Software_component_received }}</td>
-    <td>{{ dfi_detail.component }}</td>
-    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
-      <a href="{% url 'dfi_update' dfi_detail.pk %}" class="update-button">Update</a>
-      <a href="{% url 'dfi_delete' dfi_detail.pk %}" class="delete-button">Delete</a>
-      <a href="{% url 'dfi_create' beneficiary.pk %}"  class="semc_create-button">Add DFI Record</a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}
-<p>No DFI Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
-<a href="{% url 'dfi_create' beneficiary.pk %}"  class="semc_create-button2">Add DFI Record</a>
-{% endif %}
-
-
-
 
 
 

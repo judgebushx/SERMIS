@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from SERMIS import views
-from SERMIS.views import group_list, group_create, SEMCMentoringCoaching, custom_logout, spnutricash_create, spnutricash_update, spnutricash_delete, nutricashbeneficiary_delete, nutricashbeneficiary_detail
+from SERMIS.views import group_list, custom_logout, spnutricash_create, spnutricash_update, spnutricash_delete, nutricashbeneficiary_delete
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -77,9 +77,7 @@ urlpatterns = [
     path('lpdnonfarm/<int:pk>/update/', views.lpdnonfarm_update, name='lpdnonfarm_update'),
     path('lpdnonfarm/<int:pk>/delete/', views.lpdnonfarm_delete, name='lpdnonfarm_delete'),
 
-    path('beneficiaries/<int:pk>/dfi/create/', views.dfi_create, name='dfi_create'),
-    path('dfi/<int:pk>/update/', views.dfi_update, name='dfi_update'),
-    path('dfi/<int:pk>/delete/', views.dfi_delete, name='dfi_delete'),
+
 
     path('get_record_counts/<int:beneficiary_id>/', views.get_record_counts, name='get_record_counts'),
 
@@ -95,10 +93,33 @@ urlpatterns = [
     path('spnutricash/delete/<int:pk>/', spnutricash_delete, name='spnutricash_delete'),
 
     path('nutricashbeneficiary/delete/<int:pk>/', nutricashbeneficiary_delete, name='nutricashbeneficiary_delete'),
-
     path('nutricashbeneficiary/<int:pk>/', views.nutricashbeneficiary_detail, name='nutricashbeneficiary_detail'),
+    path('nutricashbeneficiary/<int:pk>/update/', views.nutricashbeneficiary_update, name='nutricashbeneficiary_update'),
+    
+    
+    path('beneficiaries/<pk>/add-sage-beneficiary/', views.add_sage_beneficiary, name='add_sage_beneficiary'),
+    path('sagebeneficiary/<int:pk>/update/', views.sagebeneficiary_update, name='sagebeneficiary_update'),
+    path('sagebeneficiary/delete/<int:pk>/', views.sagebeneficiary_delete, name='sagebeneficiary_delete'),
+    path('sagebeneficiary/<int:pk>/', views.sagebeneficiary_detail, name='sagebeneficiary_detail'),
 
 
 
+
+    path('spsage/create/<int:pk>/', views.spsage_create, name='spsage_create'),
+    path('spnutricashdetails/<int:beneficiary_id>/', views.spnutricash_details, name='spnutricash_details'),
+    path('spnutricash/update/<int:pk>/', spnutricash_update, name='spnutricash_update'),
+    path('spnutricash/delete/<int:pk>/', spnutricash_delete, name='spnutricash_delete'),
+
+
+    path('beneficiaries/<pk>/add-finlit-beneficiary/', views.add_finlit_beneficiary, name='add_finlit_beneficiary'),
+    path('finlitbeneficiary/<int:pk>/update/', views.finlitbeneficiary_update, name='finlitbeneficiary_update'),
+    path('finlitbeneficiary/delete/<int:pk>/', views.finlitbeneficiary_delete, name='finlitbeneficiary_delete'),
+    path('finlitbeneficiary/<int:pk>/', views.finlitbeneficiary_detail, name='finlitbeneficiary_detail'),
+
+
+    path('finlit/create/<int:pk>/', views.finlit_details_create, name='finlit_details_create'),
+    path('finlitdetails/<int:beneficiary_id>/', views.spnutricash_details, name='spnutricash_details'),
+    path('finlit/update/<int:pk>/', views.finlit_details_update, name='finlit_details_update'),
+    path('finlit/delete/<int:pk>/', views.finlit_details_delete, name='finlit_details_delete'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

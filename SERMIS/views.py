@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Group, Beneficiary
 from django.urls import reverse
-from .models import SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, DFI, NutricashBeneficiary
-from .forms import GroupForm, BeneficiaryForm, NutricashBeneficiaryForm,  SEMCMentoringCoachingForm, SEMCCommunityParticipationForm, SEMCSBCCForm, SPGFAForm, SPNutricashForm, SPSAGEForm, LPDOnFarmForm, LPDOffFarmForm, LPDNonFarmForm, DFIForm
+from .models import SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, FinlitBeneficiary, FinLitDetails, NutricashBeneficiary, SAGEBeneficiary
+from .forms import GroupForm, BeneficiaryForm, NutricashBeneficiaryForm,  SEMCMentoringCoachingForm, SEMCCommunityParticipationForm, SEMCSBCCForm, SPGFAForm, SPNutricashForm, FinlitBeneficiaryForm, FinlitDetailsForm, SAGEBeneficiaryForm, SPSAGEForm, LPDOnFarmForm, LPDOffFarmForm, LPDNonFarmForm
 from django.apps import apps
 from django.http import JsonResponse
 from django.core.files import File
@@ -13,8 +13,10 @@ import base64
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import logout
 from django.urls import reverse
-
-
+from django.contrib import messages
+from django.http import HttpResponse
+from django.utils import timezone
+from datetime import datetime
 
 
 
@@ -103,6 +105,9 @@ def beneficiary_detail(request, pk):
     group = beneficiary.group 
     # nutricash_beneficiaries = NutricashBeneficiary.objects.filter(group_representative=beneficiary)
     nutricash_beneficiaries = NutricashBeneficiary.objects.filter(group_representative=beneficiary)
+
+    sage_beneficiaries = SAGEBeneficiary.objects.filter(group_representative=beneficiary)
+    finlit_beneficiaries = FinlitBeneficiary.objects.filter(group_representative=beneficiary)
     
     print("Beneficiary Object:", beneficiary)
     semcmentoringcoaching_details = SEMCMentoringCoaching.objects.filter(beneficiary=beneficiary)
@@ -114,7 +119,7 @@ def beneficiary_detail(request, pk):
     lpdonfarm_details = LPDOnFarm.objects.filter(name_of_participant=beneficiary)
     lpdofffarm_details = LPDOffFarm.objects.filter(name_of_participant=beneficiary)
     lpdnonfarm_details = LPDNonFarm.objects.filter(name_of_participant=beneficiary)
-    dfi_details = DFI.objects.filter(name_of_participant=beneficiary)
+    finlit_details = FinLitDetails.objects.filter(group_representative=beneficiary)
     # nutricashbeneficiary_details = NutricashBeneficiary.objects.filter(group_representative=beneficiary)
     
    
@@ -130,9 +135,11 @@ def beneficiary_detail(request, pk):
                                             'lpdonfarm_details': lpdonfarm_details,
                                             'lpdofffarm_details': lpdofffarm_details,
                                             'lpdnonfarm_details': lpdnonfarm_details,
-                                            'dfi_details': dfi_details,
+                                            'finlit_details': finlit_details,
                                             # 'nutricashbeneficiary_details': nutricashbeneficiary_details,
-                                            'nutricash_beneficiaries': nutricash_beneficiaries,                                           
+                                            'nutricash_beneficiaries': nutricash_beneficiaries,
+                                            'sage_beneficiaries': sage_beneficiaries,
+                                            'finlit_beneficiaries': finlit_beneficiaries                                           
 
                                               }
         )
@@ -341,6 +348,15 @@ def semc_mentoring_coaching_create(request, pk):
         if form.is_valid():
             semc_mentoring_coaching = form.save(commit=False)
             semc_mentoring_coaching.beneficiary = beneficiary
+            semc_mentoring_coaching.district = beneficiary  # Set district           
+            semc_mentoring_coaching.nationality = beneficiary  
+            semc_mentoring_coaching.region = beneficiary  # Set region
+            semc_mentoring_coaching.settlement = beneficiary # Set settlement
+            semc_mentoring_coaching.actual_nationality = beneficiary.nationality  # Set actual_nationality
+            semc_mentoring_coaching.actual_region = beneficiary.region  # Set actual_region
+            semc_mentoring_coaching.actual_district = beneficiary.district  # Set actual_district
+            semc_mentoring_coaching.actual_settlement = beneficiary.settlement  # Set actual_settlement
+     
             semc_mentoring_coaching.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
@@ -421,7 +437,7 @@ def spgfa_delete(request, pk):
         return render(request, 'spgfa_delete.html', {'beneficiary_pk': beneficiary_pk})
 
 
-#SPNutricash views-----------------------------------------------------------------------------------------------
+#Nutricash Beneficiary views-----------------------------------------------------------------------------------------------
 
 
 # def add_nutricash_beneficiary(request, pk):
@@ -450,6 +466,11 @@ def add_nutricash_beneficiary(request, pk):
             nutricash_beneficiary.district = beneficiary
             nutricash_beneficiary.settlement = beneficiary
             nutricash_beneficiary.nationality = beneficiary
+            nutricash_beneficiary.actual_region = beneficiary.region
+            nutricash_beneficiary.actual_district = beneficiary.district 
+            nutricash_beneficiary.actual_settlement= beneficiary.district 
+            nutricash_beneficiary.actual_nationality = beneficiary.nationality
+            
             nutricash_beneficiary.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
@@ -487,13 +508,34 @@ def nutricashbeneficiary_delete(request, pk):
         return render(request, 'delete_confirmation.html', {'nutricashbeneficiary': nutricashbeneficiary})
 
 
+@login_required
+def nutricashbeneficiary_update(request, pk):
+    nutricashbeneficiary = get_object_or_404(NutricashBeneficiary, pk=pk)
+    beneficiary = nutricashbeneficiary.group_representative 
+    
+    if request.method == 'POST':
+        form = NutricashBeneficiaryForm(request.POST, instance=nutricashbeneficiary)
+        if form.is_valid():
+            form.save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        form = NutricashBeneficiaryForm(instance=nutricashbeneficiary)
+    return render(request, 'add_nutricash_beneficiary.html', {'form': form})
 
+
+#NUTRICASH DETAILS------------------------------------------------------------------
 
 @login_required
 def spnutricash_create(request, pk):
     nutricash_beneficiary = get_object_or_404(NutricashBeneficiary, pk=pk)
-    beneficiary = get_object_or_404(Beneficiary, pk=nutricash_beneficiary.pk)
-    
+    beneficiary = nutricash_beneficiary.group_representative 
+
+# Check if the exit_date has been exceeded
+    if nutricash_beneficiary.exit_date is not None and timezone.now() > datetime.combine(nutricash_beneficiary.exit_date, datetime.min.time()).replace(tzinfo=timezone.get_current_timezone()):
+        nutricash_beneficiary.beneficiary_status = 'Exited'
+        nutricash_beneficiary.save()  # Save the updated status
+        return HttpResponse("The exit date has been exceeded. The beneficiary is no longer eligible for assistance.")
+        
     if request.method == 'POST':
         form = SPNutricashForm(request.POST)
         if form.is_valid():
@@ -538,12 +580,11 @@ def spnutricash_update(request, pk):
         if form.is_valid():
             form.save()
             # Check if the related beneficiary exists before redirecting
-            if spnutricash.nutricash_beneficiary:
-                return redirect('nutricashbeneficiary_detail', pk=spnutricash.nutricash_beneficiary.pk)
+            if spnutricash.nutricash_beneficiary_name:
+                return redirect('nutricashbeneficiary_detail', pk=spnutricash.nutricash_beneficiary_name.pk)
             else:
-                # Handle the case when the beneficiary doesn't exist
-                # For example, redirect to a generic page or return an error message
-                return redirect('generic_page')
+
+                messages.error(request, 'No related beneficiary found in database')
     else:
         form = SPNutricashForm(instance=spnutricash)
 
@@ -552,30 +593,131 @@ def spnutricash_update(request, pk):
 @login_required
 def spnutricash_delete(request, pk):
     spnutricash = get_object_or_404(SPNutricashDetails, pk=pk)
-    nutricash_beneficiary_pk = spnutricash.nutricash_beneficiary.pk
+    nutricash_beneficiary_pk = spnutricash.nutricash_beneficiary_name.pk
 
     if request.method == 'POST':
         # Handle the confirmation of deletion
         spnutricash.delete()
-        return redirect('beneficiary_detail', pk=nutricash_beneficiary_pk)
+        return redirect('nutricashbeneficiary_detail', pk=nutricash_beneficiary_pk)
     else:
         # Display the confirmation page
         return render(request, 'spnutricash_delete.html', {'nutricash_beneficiary_pk': nutricash_beneficiary_pk})
 
+
+#SAGEbeneficiary viewa-------------------------------------------------------------------------------------
+@login_required
+def add_sage_beneficiary(request, pk):
+    beneficiary = get_object_or_404(Beneficiary, pk=pk)
     
-    #SPSAGE views-----------------------------------------------------------------------------------------------
+    if request.method == 'POST':
+        form = SAGEBeneficiaryForm(request.POST)
+        if form.is_valid():
+            sage_beneficiary = form.save(commit=False)
+            sage_beneficiary.group_representative = beneficiary
+            sage_beneficiary.region = beneficiary
+            sage_beneficiary.district = beneficiary
+            sage_beneficiary.settlement = beneficiary
+            sage_beneficiary.nationality = beneficiary
+            sage_beneficiary.household_id = beneficiary
+            sage_beneficiary.actual_region = beneficiary.region
+            sage_beneficiary.actual_district = beneficiary.district 
+            sage_beneficiary.actual_settlement= beneficiary.district 
+            sage_beneficiary.actual_nationality = beneficiary.nationality
+
+            
+            sage_beneficiary .save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        initial_data = {
+            'region': beneficiary.region,
+            'district': beneficiary.district,
+            'settlement': beneficiary.settlement,
+            'nationality': beneficiary.nationality,
+            'group_representative': beneficiary
+        }
+        form = SAGEBeneficiaryForm(initial=initial_data)
+    
+    return render(request, 'add_sage_beneficiary.html', {'form': form})
+
+@login_required
+def sagebeneficiary_detail(request, pk):
+    sagebeneficiary = get_object_or_404(SAGEBeneficiary, pk=pk)
+    sagebeneficiary_details = sagebeneficiary.sage_beneficiary.all()
+    return render(request, 'sage_beneficiary_detail.html', {'sagebeneficiary': sagebeneficiary, 'sagebeneficiary_details': sagebeneficiary_details})
+
+
+@login_required
+def sagebeneficiary_delete(request, pk):
+    sagebeneficiary = get_object_or_404(SAGEBeneficiary, pk=pk)
+
+    if request.method == 'POST':
+        # Get the related beneficiary's pk
+        beneficiary_pk = sagebeneficiary.group_representative.pk
+
+        # Delete the nutricashbeneficiary
+        sagebeneficiary.delete()
+
+        # Redirect to beneficiary_detail with the beneficiary's pk
+        return redirect('beneficiary_detail', pk=beneficiary_pk)
+    else:
+        # Display the confirmation page
+        # return render(request, 'beneficiary_detail.html', {'nutricashbeneficiary': nutricashbeneficiary})
+        return render(request, 'delete_confirmation.html', {'sagebeneficiary': sagebeneficiary})
+
+
+@login_required
+def sagebeneficiary_update(request, pk):
+    sagebeneficiary = get_object_or_404(SAGEBeneficiary, pk=pk)
+    beneficiary = sagebeneficiary.group_representative 
+    
+    if request.method == 'POST':
+        form = SAGEBeneficiaryForm(request.POST, instance=sagebeneficiary)
+        if form.is_valid():
+            form.save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        form = SAGEBeneficiaryForm(instance=sagebeneficiary)
+    return render(request, 'add_sage_beneficiary.html', {'form': form})
+
+
+
+
+
+
+
+
+
+#SPSAGE Deatils views-----------------------------------------------------------------------------------------------
 
 @login_required
 def spsage_create(request, pk):
-    beneficiary = get_object_or_404(Beneficiary, pk=pk)
+    sagebeneficiary = get_object_or_404(SAGEBeneficiary, pk=pk)
+    beneficiary = sagebeneficiary.group_representative
 
     if request.method == 'POST':
         form = SPSAGEForm(request.POST)
         if form.is_valid():
             spsage = form.save(commit=False)
-            spsage.beneficiary = beneficiary
+
+            spsage.sage_beneficiary_name = sagebeneficiary
+            spsage.name_of_participant = sagebeneficiary.group_representative  # Set group_representative
+            spsage.ID_type = sagebeneficiary 
+            spsage.ID_number = sagebeneficiary  # Set ID_number
+            spsage.candidate_individual_id = sagebeneficiary  # Set ID_type
+            spsage.district = beneficiary  # Set district           
+            spsage.nationality = beneficiary  
+            spsage.region = beneficiary  # Set region
+            spsage.settlement = beneficiary # Set settlement
+            spsage.actual_nationality = beneficiary.nationality  # Set actual_nationality
+            spsage.actual_region = beneficiary.region  # Set actual_region
+            spsage.actual_district = beneficiary.district  # Set actual_district
+            spsage.actual_settlement = beneficiary.settlement  # Set actual_settlement
+            spsage.actual_ID_type = sagebeneficiary.ID_type  # Set actual_ID_type
+            spsage.actual_candidate_individual_id = sagebeneficiary.candidate_individual_id
+            spsage.sage_beneficiary_dob = sagebeneficiary
+            spsage.sagebeneficiary = sagebeneficiary
             spsage.save()
-            return redirect('beneficiary_detail', pk=beneficiary.pk)
+            return redirect('sagebeneficiary_detail', pk=sagebeneficiary.pk)
     else:
         form = SPSAGEForm()
 
@@ -583,13 +725,13 @@ def spsage_create(request, pk):
 
 @login_required
 def spsage_update(request, pk):
-    spsage = get_object_or_404(SPSAGE, pk=pk)
+    spsage = get_object_or_404(SPSAGEdetails, pk=pk)
     
     if request.method == 'POST':
         form = SPSAGEForm(request.POST, instance=spsage)
         if form.is_valid():
             form.save()
-            return redirect('beneficiary_detail', pk=spsage.beneficiary.pk)
+            return redirect('sagebeneficiary_detail', pk=spsage.sage_beneficiary_name.pk)
     else:
         form = SPSAGEForm(instance=spsage)
 
@@ -597,17 +739,177 @@ def spsage_update(request, pk):
 
 @login_required
 def spsage_delete(request, pk):
-    spsage = get_object_or_404(SPSAGE, pk=pk)
-    beneficiary_pk = spsage.beneficiary.pk
+    spsage = get_object_or_404(SPSAGEdetails, pk=pk)
 
     if request.method == 'POST':
-        # Handle the confirmation of deletion
+       
         spsage.delete()
+        return redirect('sagebeneficiary_detail', pk=spsage.sage_beneficiary_name.pk)
+
+    else:
+        # Display the confirmation page
+        return render(request, 'spsage_delete.html', {'spsage': spsage})
+    
+
+
+
+
+
+#Finlit beneficiary views-------------------------------------------------------------------------------------
+@login_required
+def add_finlit_beneficiary(request, pk):
+    beneficiary = get_object_or_404(Beneficiary, pk=pk)
+    
+    if request.method == 'POST':
+        form = FinlitBeneficiaryForm(request.POST)
+        if form.is_valid():
+            finlit_beneficiary = form.save(commit=False)
+            finlit_beneficiary.group_representative = beneficiary
+            finlit_beneficiary.region = beneficiary
+            finlit_beneficiary.district = beneficiary
+            finlit_beneficiary.settlement = beneficiary
+            finlit_beneficiary.nationality = beneficiary
+            finlit_beneficiary.household_id = beneficiary
+            finlit_beneficiary.actual_region = beneficiary.region
+            finlit_beneficiary.actual_district = beneficiary.district 
+            finlit_beneficiary.actual_settlement= beneficiary.district 
+            finlit_beneficiary.actual_nationality = beneficiary.nationality
+
+            
+            finlit_beneficiary.save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        initial_data = {
+            'region': beneficiary.region,
+            'district': beneficiary.district,
+            'settlement': beneficiary.settlement,
+            'nationality': beneficiary.nationality,
+            'group_representative': beneficiary
+        }
+        form = FinlitBeneficiaryForm(initial=initial_data)
+    
+    return render(request, 'add_finlit_beneficiary.html', {'form': form})
+
+@login_required
+def finlitbeneficiary_detail(request, pk):
+    finlitbeneficiary = get_object_or_404(FinlitBeneficiary, pk=pk)
+    finlitbeneficiary_details = finlitbeneficiary.finlit_candidate.all()
+    return render(request, 'finlit_beneficiary_detail.html', {'finlitbeneficiary': finlitbeneficiary, 'finlitbeneficiary_details': finlitbeneficiary_details})
+
+
+@login_required
+def finlitbeneficiary_delete(request, pk):
+    finlitbeneficiary = get_object_or_404(FinlitBeneficiary, pk=pk)
+
+    if request.method == 'POST':
+        # Get the related beneficiary's pk
+        beneficiary_pk = finlitbeneficiary.group_representative.pk
+
+        # Delete the nutricashbeneficiary
+        finlitbeneficiary.delete()
+
+        # Redirect to beneficiary_detail with the beneficiary's pk
         return redirect('beneficiary_detail', pk=beneficiary_pk)
     else:
         # Display the confirmation page
-        return render(request, 'spsage_delete.html', {'beneficiary_pk': beneficiary_pk})
+        # return render(request, 'beneficiary_detail.html', {'nutricashbeneficiary': nutricashbeneficiary})
+        return render(request, 'delete_confirmation.html', {'finlitbeneficiary': finlitbeneficiary})
+
+
+@login_required
+def finlitbeneficiary_update(request, pk):
+    finlitbeneficiary = get_object_or_404(FinlitBeneficiary, pk=pk)
+    beneficiary = finlitbeneficiary.group_representative 
     
+    if request.method == 'POST':
+        form = FinlitBeneficiaryForm(request.POST, instance=finlitbeneficiary)
+        if form.is_valid():
+            form.save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        form = FinlitBeneficiaryForm(instance=finlitbeneficiary)
+    return render(request, 'add_finlit_beneficiary.html', {'form': form})
+
+
+
+
+#FinLit Details views-----------------------------------------------------------------------------------------------
+
+@login_required
+def finlit_details_create(request, pk):
+    finlitbeneficiary = get_object_or_404(FinlitBeneficiary, pk=pk)
+    beneficiary = finlitbeneficiary.group_representative
+
+    if request.method == 'POST':
+        form = FinlitDetailsForm(request.POST)
+        if form.is_valid():
+            finlit = form.save(commit=False)
+
+            finlit.finlit_candidate_name = finlitbeneficiary
+            finlit.group_representative = finlitbeneficiary.group_representative  # Set group_representative
+
+
+            finlit.district = finlitbeneficiary  # Set district           
+            finlit.nationality = finlitbeneficiary  
+            finlit.region = finlitbeneficiary  # Set region
+            finlit.settlement = finlitbeneficiary # Set settlement
+            finlit.actual_nationality = beneficiary.nationality  # Set actual_nationality
+            finlit.actual_region = beneficiary.region  # Set actual_region
+            finlit.actual_district = beneficiary.district  # Set actual_district
+            finlit.actual_settlement = beneficiary.settlement  # Set actual_settlement
+            finlit.finlitbeneficiary = finlitbeneficiary
+            finlit.save()
+            return redirect('finlitbeneficiary_detail', pk=finlitbeneficiary.pk)
+    else:
+        form = FinlitDetailsForm()
+
+    return render(request, 'finlit_details_form.html', {'form': form})
+
+@login_required
+def finlit_details_update(request, pk):
+    finlit = get_object_or_404(FinLitDetails, pk=pk)
+    
+    if request.method == 'POST':
+        form = FinlitDetailsForm(request.POST, instance=finlit)
+        if form.is_valid():
+            form.save()
+            return redirect('finlitbeneficiary_detail', pk=finlit.finlit_candidate_name.pk)
+    else:
+        form = FinlitDetailsForm(instance=finlit)
+
+    return render(request, 'finlit_details_form.html', {'form': form})
+
+@login_required
+def finlit_details_delete(request, pk):
+    finlit = get_object_or_404(FinLitDetails, pk=pk)
+
+    if request.method == 'POST':
+       
+        finlit.delete()
+        return redirect('finlit_beneficiary_detail', pk=finlit.finlit_candidate_name.p)
+
+    else:
+        # Display the confirmation page
+        return render(request, 'finlit_details_delete.html', {'finlit': finlit})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 #LPDOnFarm views-----------------------------------------------------------------------------------------------
 @login_required
@@ -743,49 +1045,49 @@ def lpdnonfarm_delete(request, pk):
         return render(request, 'lpdnonfarm_delete.html', {'beneficiary_pk': beneficiary_pk})
 
 
-#DFI views-----------------------------------------------------------------------------------------------
-@login_required
-def dfi_create(request, pk):
-    beneficiary = get_object_or_404(Beneficiary, pk=pk)
+# #DFI views-----------------------------------------------------------------------------------------------
+# @login_required
+# def dfi_create(request, pk):
+#     beneficiary = get_object_or_404(Beneficiary, pk=pk)
 
-    if request.method == 'POST':
-        form = DFIForm(request.POST)
-        if form.is_valid():
-            dfi = form.save(commit=False)
-            dfi.beneficiary = beneficiary
-            dfi.save()
-            return redirect('beneficiary_detail', pk=beneficiary.pk)
-    else:
-        form = DFIForm()
+#     if request.method == 'POST':
+#         form = DFIForm(request.POST)
+#         if form.is_valid():
+#             dfi = form.save(commit=False)
+#             dfi.beneficiary = beneficiary
+#             dfi.save()
+#             return redirect('beneficiary_detail', pk=beneficiary.pk)
+#     else:
+#         form = DFIForm()
 
-    return render(request, 'dfi_form.html', {'form': form})
+#     return render(request, 'dfi_form.html', {'form': form})
 
-@login_required
-def dfi_update(request, pk):
-    dfi = get_object_or_404(DFI, pk=pk)
+# @login_required
+# def dfi_update(request, pk):
+#     dfi = get_object_or_404(DFI, pk=pk)
     
-    if request.method == 'POST':
-        form = DFIForm(request.POST, instance=dfi)
-        if form.is_valid():
-            form.save()
-            return redirect('beneficiary_detail', pk=dfi.beneficiary.pk)
-    else:
-        form = DFIForm(instance=dfi)
+#     if request.method == 'POST':
+#         form = DFIForm(request.POST, instance=dfi)
+#         if form.is_valid():
+#             form.save()
+#             return redirect('beneficiary_detail', pk=dfi.beneficiary.pk)
+#     else:
+#         form = DFIForm(instance=dfi)
 
-    return render(request, 'dfi_form.html', {'form': form})
+#     return render(request, 'dfi_form.html', {'form': form})
 
-@login_required
-def dfi_delete(request, pk):
-    dfi = get_object_or_404(DFI, pk=pk)
-    beneficiary_pk = dfi.beneficiary.pk
+# @login_required
+# def dfi_delete(request, pk):
+#     dfi = get_object_or_404(DFI, pk=pk)
+#     beneficiary_pk = dfi.beneficiary.pk
 
-    if request.method == 'POST':
-        # Handle the confirmation of deletion
-        dfi.delete()
-        return redirect('beneficiary_detail', pk=beneficiary_pk)
-    else:
-        # Display the confirmation page
-        return render(request, 'dfi_delete.html', {'beneficiary_pk': beneficiary_pk})
+#     if request.method == 'POST':
+#         # Handle the confirmation of deletion
+#         dfi.delete()
+#         return redirect('beneficiary_detail', pk=beneficiary_pk)
+#     else:
+#         # Display the confirmation page
+#         return render(request, 'dfi_delete.html', {'beneficiary_pk': beneficiary_pk})
     
 
 
