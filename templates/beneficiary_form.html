@@ -10,35 +10,85 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}" type="text/css" media="all">
     <script src="(link unavailable)"></script>
     <script type="module" src="{% static 'js/index.js' %}"></script>
-
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 600px;
+            padding: 20px;
+            margin: 40px auto;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            margin-top: 0;
+        }
+        form {
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+        }
+        .submit-button {
+            background-color: #4caf50;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .submit-button:hover {
+            background-color: #3e8e41;
+        }
+        .alert {
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            background-color: #f5f5f5;
+        }
+        .alert-danger {
+            color: #721c24;
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+        }
+    </style>
 </head>
 <body>
-  <h1>Enroll Beneficiary</h1>
-  <form method="POST">
-    {% csrf_token %}
-    <table>
-        {{ form.as_table }}
-
-        {% if form.errors %}
-        <tr>
-            <td colspan="2">
-                <div class="alert alert-danger">
-                    <strong>Error:</strong> There are errors in the form. Please correct them and try again.
-                    <ul>
-                        {% for field, errors in form.errors.items %}
-                            <li>{{ field }}: {{ errors.0 }}</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </td>
-        </tr>
-        {% endif %}
-    </table>
-
-    <div class="form-submit">
-        <button type="submit" class="submit-button">Submit</button>
+    <div class="container">
+        <h1>Enroll Beneficiary</h1>
+        <form method="POST">
+            {% csrf_token %}
+            <div class="form-group">
+                {{ form.as_p }}
+            </div>
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong>Error:</strong> There are errors in the form. Please correct them and try again.
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        <li>{{ field }}: {{ errors.0 }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+            <div class="form-submit">
+                <button type="submit" class="submit-button">Submit</button>
+            </div>
+        </form>
     </div>
-  </form>
 </body>
 </html>
 {% endblock %}

@@ -142,7 +142,7 @@ th {
   display: block;
   width: 100%; /* Adjust the width of the band */
   height: 40px; /* Adjust the thickness of the band */
-  background-color: #0e2858; /* Adjust the color of the band */
+  background-color: #535457; /* Adjust the color of the band */
   position: absolute;
   bottom: -9px; /* Adjust the distance of the band from the heading */
   left: 0;
@@ -435,11 +435,11 @@ th {
       <tr>
         <td>{{ semcmentoringcoaching_detail.meeting_date }}</td>
         <td>{{ semcmentoringcoaching_detail.provider }}</td>
-        <td>{{ semcmentoringcoaching_detail.group.group_name }}</td>
+        <td>{{ semcmentoringcoaching_detail.actual_group }}</td>
         <td>{{ semcmentoringcoaching_detail.beneficiary }}</td>
-        <td>{{ semcmentoringcoaching_detail.region }}</td>
-        <td>{{ semcmentoringcoaching_detail.district }}</td>
-        <td>{{ semcmentoringcoaching_detail.settlement }}</td>
+        <td>{{ semcmentoringcoaching_detail.actual_region }}</td>
+        <td>{{ semcmentoringcoaching_detail.actual_district }}</td>
+        <td>{{ semcmentoringcoaching_detail.actual_settlement }}</td>
         <td>{{ semcmentoringcoaching_detail.mentor_name }}</td>
         <td>{{ semcmentoringcoaching_detail.topic_of_discussion }}</td>
         <td>{{ semcmentoringcoaching_detail.component }}</td>
@@ -482,11 +482,11 @@ th {
   <tr>
     <td>{{ semccommunityparticipation_detail.meeting_date }}</td>
     <td>{{ semccommunityparticipation_detail.provider }}</td>
-    <td>{{ semccommunityparticipation_detail.group.group_name }}</td>
+    <td>{{ semccommunityparticipation_detail.actual_group }}</td>
     <td>{{ semccommunityparticipation_detail.beneficiary }}</td>
-    <td>{{ semccommunityparticipation_detail.region }}</td>
-    <td>{{ semccommunityparticipation_detail.district }}</td>
-    <td>{{ semccommunityparticipation_detail.settlement }}</td>
+    <td>{{ semccommunityparticipation_detail.actual_region }}</td>
+    <td>{{ semccommunityparticipation_detail.actual_district }}</td>
+    <td>{{ semccommunityparticipation_detail.actual_settlement }}</td>
     <td>{{ semccommunityparticipation_detail.topic_of_discussion }}</td>
     <td>{{ semccommunityparticipation_detail.component }}</td>
     <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
@@ -507,7 +507,8 @@ th {
 
 
 
-<h2>SEMC SBCC records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}"</h2>
+
+<h2 class="section-heading">SEMC SBCC records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_participant }}</h2>
 {% if semcsbcc_details %}
 <table>
   <tr>
@@ -549,7 +550,7 @@ th {
 
 
 </ul>
-<h2>SP GFA records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+<h2 class="section-heading">SP GFA records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
 {% if spgfa_details %}
 <table>
   <tr>
@@ -570,11 +571,11 @@ th {
   <tr>
     <td>{{ spgfa_detail.disbursement_date }}</td>
     <td>{{ spgfa_detail.provider }}</td>
-    <td>{{ spgfa_detail.group.group_name }}</td>
+    <td>{{ spgfa_detail.actual_group }}</td>
     <td>{{ spgfa_detail.beneficiary }}</td>
-    <td>{{ spgfa_detail.region }}</td>
-    <td>{{ spgfa_detail.district }}</td>
-    <td>{{ spgfa_detail.settlement }}</td>
+    <td>{{ spgfa_detail.actual_region }}</td>
+    <td>{{ spgfa_detail.actual_district }}</td>
+    <td>{{ spgfa_detail.actual_settlement }}</td>
     <td>{{ spgfa_detail.household_beneficiary_name }}</td>
     <td>{{spgfa_detail.transfer_value}}</td>
     <td>{{ spgfa_detail.component }}</td>
@@ -595,7 +596,7 @@ th {
 </ul>
 
 
-<h2>SP Nutricash records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+<!-- <h2  class="section-heading">SP Nutricash records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
 {% if spnutricash_details %}
 <table>
   <tr>
@@ -635,10 +636,10 @@ th {
 {% else %}
 <p>No SP Nutricash Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
 <a href="{% url 'spnutricash_create' beneficiary.pk %}"  class="semc_create-button2">Add SP Nutricash Record</a>
-{% endif %}
+{% endif %} -->
 
 
-<h2>SP SAGE records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
+<!-- <h2  class="section-heading">SP SAGE records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
 {% if spsage_details %}
 <table>
   <tr>
@@ -676,135 +677,142 @@ th {
   {% endfor %}
 </table>
 {% else %}
-<p>No SP SAGE Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+<p>No SP SAGE Details available for <span style="color:rgb(228, 46, 22)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
 <a href="{% url 'spsage_create' beneficiary.pk %}"  class="semc_create-button2">Add SP SAGE Record</a>
+{% endif %} -->
+
+
+{% if beneficiary.lpd_component == 'On-farm' %} 
+  <h2 class="section-heading">LPD On-Farm records for <span style="color: rgb(238, 211, 89);">{{ beneficiary.name_of_household_head }}</h2>
+ 
+    {% if lpdonfarm_details %}
+      <table>
+        <tr>
+          <th>Value date</th>
+          <th>Provider</th>
+          <th>Group name</th>
+          <th>Beneficiary</th>
+          <th>Region</th>
+          <th>District</th>
+          <th>Settlement</th>
+          <th>On-Farm component received </th>  
+          <th>Component</th>
+          <th>Action buttons</th>
+        </tr>
+
+        {% for lpdonfarm_detail in lpdonfarm_details %}
+        <tr>
+          <td>{{ lpdonfarm_detail.value_date }}</td>
+          <td>{{ lpdonfarm_detail.provider }}</td>
+          <td>{{ lpdonfarm_detail.actual_group }}</td>
+          <td>{{ lpdonfarm_detail.name_of_participant }}</td>
+          <td>{{ lpdonfarm_detail.actual_region }}</td>
+          <td>{{ lpdonfarm_detail.actual_district }}</td>
+          <td>{{ lpdonfarm_detail.actual_settlement }}</td>
+          <td>{{ lpdonfarm_detail.Onfarm_component_received }}</td>
+          <td>{{ lpdonfarm_detail.component }}</td>
+          <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+            <a href="{% url 'lpdonfarm_update' lpdonfarm_detail.pk %}" class="update-button">Update</a>
+            <a href="{% url 'lpdonfarm_delete' lpdonfarm_detail.pk %}" class="delete-button">Delete</a>
+            <a href="{% url 'lpdonfarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD On-Farm Record</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p>No LPD On-Farm Details available for <span style="color:rgb(238, 211, 89)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+      <a href="{% url 'lpdonfarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD On-Farm Record</a>
+    {% endif %}
 {% endif %}
 
 
-<h2>LPD On-Farm records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
-{% if lpdonfarm_details %}
-<table>
-  <tr>
-    <th>Value date</th>
-    <th>Provider</th>
-    <th>Group name</th>
-    <th>Beneficiary</th>
-    <th>Region</th>
-    <th>District</th>
-    <th>Settlement</th>
-    <th>On-Farm component received </th>  
-    <th>Component</th>
-    <th>Action buttons</th>
-  </tr>
+{% if beneficiary.lpd_component == 'Off-farm' %} 
+    <h2 class="section-heading">LPD Off-Farm records for <span style="color: rgb(238, 211, 89);">{{ beneficiary.name_of_household_head }}</h2>
+    {% if lpdofffarm_details %}
+    <table>
+      <tr>
+        <th>Value date</th>
+        <th>Provider</th>
+        <th>Group name</th>
+        <th>Beneficiary</th>
+        <th>Region</th>
+        <th>District</th>
+        <th>Settlement</th>
+        <th>Off-Farm Software component received </th>  
+        <th>Off-Farm Hardware component received </th>  
+        <th>Component</th>
+        <th>Action buttons</th>
+      </tr>
 
-  {% for lpdonfarm_detail in lpdonfarm_details %}
-  <tr>
-    <td>{{ lpdonfarm_detail.value_date }}</td>
-    <td>{{ lpdonfarm_detail.provider }}</td>
-    <td>{{ lpdonfarm_detail.group.group_name }}</td>
-    <td>{{ lpdonfarm_detail.beneficiary }}</td>
-    <td>{{ lpdonfarm_detail.region }}</td>
-    <td>{{ lpdonfarm_detail.district }}</td>
-    <td>{{ lpdonfarm_detail.settlement }}</td>
-    <td>{{ lpdonfarm_detail.Onfarm_component_received }}</td>
-    <td>{{ lpdonfarm_detail.component }}</td>
-    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
-      <a href="{% url 'lpdonfarm_update' lpdonfarm_detail.pk %}" class="update-button">Update</a>
-      <a href="{% url 'lpdonfarm_delete' lpdonfarm_detail.pk %}" class="delete-button">Delete</a>
-      <a href="{% url 'lpdonfarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD On-Farm Record</a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}
-<p>No LPD On-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
-<a href="{% url 'lpdonfarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD On-Farm Record</a>
-{% endif %}
-
-<h2>LPD Off-Farm records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
-{% if lpdofffarm_details %}
-<table>
-  <tr>
-    <th>Value date</th>
-    <th>Provider</th>
-    <th>Group name</th>
-    <th>Beneficiary</th>
-    <th>Region</th>
-    <th>District</th>
-    <th>Settlement</th>
-    <th>Off-Farm Software component received </th>  
-    <th>Off-Farm Hardware component received </th>  
-    <th>Component</th>
-    <th>Action buttons</th>
-  </tr>
-
-  {% for lpdofffarm_detail in lpdofffarm_details %}
-  <tr>
-    <td>{{ lpdofffarm_detail.value_date }}</td>
-    <td>{{ lpdofffarm_detail.provider }}</td>
-    <td>{{ lpdofffarm_detail.group.group_name }}</td>
-    <td>{{ lpdofffarm_detail.beneficiary }}</td>
-    <td>{{ lpdofffarm_detail.region }}</td>
-    <td>{{ lpdofffarm_detail.district }}</td>
-    <td>{{ lpdofffarm_detail.settlement }}</td>
-    <td>{{ lpdofffarm_detail.Offfarm_Software_component_received }}</td>
-    <td>{{ lpdofffarm_detail.Offfarm_Hardware_component_received }}</td>
-    <td>{{ lpdofffarm_detail.component }}</td>
-    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
-      <a href="{% url 'lpdofffarm_update' lpdofffarm_detail.pk %}" class="update-button">Update</a>
-      <a href="{% url 'lpdofffarm_delete' lpdofffarm_detail.pk %}" class="delete-button">Delete</a>
-      <a href="{% url 'lpdofffarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD Off-Farm Record</a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}
-<p>No LPD off-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
-<a href="{% url 'lpdofffarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD Off-Farm Record</a>
+      {% for lpdofffarm_detail in lpdofffarm_details %}
+      <tr>
+        <td>{{ lpdofffarm_detail.value_date }}</td>
+        <td>{{ lpdofffarm_detail.provider }}</td>
+        <td>{{ lpdofffarm_detail.actual_group }}</td>
+        <td>{{ lpdofffarm_detail.name_of_participant }}</td>
+        <td>{{ lpdofffarm_detail.actual_region }}</td>
+        <td>{{ lpdofffarm_detail.actual_district }}</td>
+        <td>{{ lpdofffarm_detail.actual_settlement }}</td>
+        <td>{{ lpdofffarm_detail.Offfarm_Software_component_received }}</td>
+        <td>{{ lpdofffarm_detail.Offfarm_Hardware_component_received }}</td>
+        <td>{{ lpdofffarm_detail.component }}</td>
+        <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+          <a href="{% url 'lpdofffarm_update' lpdofffarm_detail.pk %}" class="update-button">Update</a>
+          <a href="{% url 'lpdofffarm_delete' lpdofffarm_detail.pk %}" class="delete-button">Delete</a>
+          <a href="{% url 'lpdofffarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD Off-Farm Record</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+    {% else %}
+    <p>No LPD off-Farm Details available for <span style="color:rgb(238, 211, 89);">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+    <a href="{% url 'lpdofffarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD Off-Farm Record</a>
+    {% endif %}
 {% endif %}
 
 
+{% if beneficiary.lpd_component == 'Non-farm' %} 
+      <h2 class="section-heading">LPD Non-Farm records for <span style="color: rgb(238, 211, 89);">{{ beneficiary.name_of_household_head }}</h2>
+      {% if lpdnonfarm_details %}
+      <table>
+        <tr>
+          <th>Value date</th>
+          <th>Provider</th>
+          <th>Group name</th>
+          <th>Beneficiary</th>
+          <th>Region</th>
+          <th>District</th>
+          <th>Settlement</th>
+          <th>Non-Farm Software component received </th>  
+          <th>Non-Farm Hardware component received </th>  
+          <th>Component</th>
+          <th>Action buttons</th>
+        </tr>
 
-<h2>LPD Non-Farm records for <span style="color: rgb(50, 47, 235);">{{ beneficiary.name_of_household_head }}</h2>
-{% if lpdnonfarm_details %}
-<table>
-  <tr>
-    <th>Value date</th>
-    <th>Provider</th>
-    <th>Group name</th>
-    <th>Beneficiary</th>
-    <th>Region</th>
-    <th>District</th>
-    <th>Settlement</th>
-    <th>Non-Farm Software component received </th>  
-    <th>Non-Farm Hardware component received </th>  
-    <th>Component</th>
-    <th>Action buttons</th>
-  </tr>
-
-  {% for lpdnonfarm_detail in lpdnonfarm_details %}
-  <tr>
-    <td>{{ lpdnonfarm_detail.value_date }}</td>
-    <td>{{ lpdnonfarm_detail.provider }}</td>
-    <td>{{ lpdnonfarm_detail.group.group_name }}</td>
-    <td>{{ lpdnonfarm_detail.beneficiary }}</td>
-    <td>{{ lpdnonfarm_detail.region }}</td>
-    <td>{{ lpdnonfarm_detail.district }}</td>
-    <td>{{ lpdnonfarm_detail.settlement }}</td>
-    <td>{{ lpdnonfarm_detail.nonfarm_Software_component_received }}</td>
-    <td>{{ lpdnonfarm_detail.nonOfffarm_Hardware_component_received }}</td>
-    <td>{{ lpdnonfarm_detail.component }}</td>
-    <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
-      <a href="{% url 'lpdnonfarm_update' lpdnonfarm_detail.pk %}" class="update-button">Update</a>
-      <a href="{% url 'lpdnonfarm_delete' lpdnonfarm_detail.pk %}" class="delete-button">Delete</a>
-      <a href="{% url 'lpdnonfarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD Non-Farm Record</a>
-    </td>
-  </tr>
-  {% endfor %}
-</table>
-{% else %}
-<p>No LPD Non-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
-<a href="{% url 'lpdnonfarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD Non-Farm Record</a>
+        {% for lpdnonfarm_detail in lpdnonfarm_details %}
+        <tr>
+          <td>{{ lpdnonfarm_detail.value_date }}</td>
+          <td>{{ lpdnonfarm_detail.provider }}</td>
+          <td>{{ lpdnonfarm_detail.actual_group }}</td>
+          <td>{{ lpdnonfarm_detail.beneficiary }}</td>
+          <td>{{ lpdnonfarm_detail.actual_region }}</td>
+          <td>{{ lpdnonfarm_detail.actual_district }}</td>
+          <td>{{ lpdnonfarm_detail.actual_settlement }}</td>
+          <td>{{ lpdnonfarm_detail.nonfarm_Software_component_received }}</td>
+          <td>{{ lpdnonfarm_detail.nonOfffarm_Hardware_component_received }}</td>
+          <td>{{ lpdnonfarm_detail.component }}</td>
+          <td class="action-buttons" style="display: flex; font-size: 0.7rem;">
+            <a href="{% url 'lpdnonfarm_update' lpdnonfarm_detail.pk %}" class="update-button">Update</a>
+            <a href="{% url 'lpdnonfarm_delete' lpdnonfarm_detail.pk %}" class="delete-button">Delete</a>
+            <a href="{% url 'lpdnonfarm_create' beneficiary.pk %}"  class="semc_create-button">Add LPD Non-Farm Record</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+      {% else %}
+      <p>No LPD Non-Farm Details available for <span style="color:rgb(13, 168, 60)">{{ beneficiary.name_of_household_head }}</span></h1>.</p>
+      <a href="{% url 'lpdnonfarm_create' beneficiary.pk %}"  class="semc_create-button2">Add LPD Non-Farm Record</a>
+      {% endif %}
 {% endif %}
 
 

@@ -287,6 +287,12 @@ class Beneficiary(models.Model):
          ('Repatriated', 'Repatriated')
          
     )
+    LPD_CHOICES = (
+        ('On-farm', 'On-farm'),
+        ('Off-farm', 'Off-farm'),
+        ('Non-farm', 'Non-farm')
+
+    )
     group = models.ForeignKey(Group, on_delete=models.CASCADE)   
     region = models.CharField(max_length=35, choices=REGION_CHOICES)
     district = models.CharField(max_length=35, choices=DISTRICT_CHOICES)
@@ -308,6 +314,7 @@ class Beneficiary(models.Model):
     marital_status = models.CharField(max_length=35, choices=MARITALSTATUS_CHOICES)
     education_level = models.CharField(max_length=35, choices=EDUCLEVEL_CHOICES)
     religion = models.CharField(max_length=35, choices=RELIGION_CHOICES)
+    lpd_component = models.CharField(max_length=10, choices=LPD_CHOICES)
     beneficiary_status = models.CharField(max_length=35, choices=STATUS_CHOICES, default='Enrolled')
     created_at = models.DateTimeField(default=timezone.now)        
     
@@ -726,7 +733,7 @@ class SEMCCommunityParticipation(models.Model):
     )
 
     provider = models.CharField(max_length=20, choices=CP_CHOICES)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='community_participation_group')
+    group = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, null=False, blank=False, related_name='community_participation_group')
     meeting_date = models.DateField()        
     beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_beneficiary')
     region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='community_participation_region')
@@ -798,7 +805,7 @@ class SEMCSBCC(models.Model):
     )
 
     provider = models.CharField(max_length=20, choices=CP_CHOICES)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='sbcc_group')
+    group = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, null=False, blank=False, related_name='sbcc_group')
     meeting_date = models.DateField()
     beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_beneficiary')
     region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='sbcc_region')
@@ -824,7 +831,7 @@ class SEMCSBCC(models.Model):
         verbose_name_plural = "SBCC Details"
 
     def __str__(self):
-        return f"SBCC Details for {self.beneficiary.name_of_household_head}"   
+        return f"SBCC Details for {self.beneficiary.name_of_participant}"   
 
 
 
@@ -870,7 +877,7 @@ class SEMCMentoringCoaching(models.Model):
     )
 
     provider = models.CharField(max_length=20, choices=CP_CHOICES)
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='mentoring_coaching_group')
+    group = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, null=False, blank=False, related_name='mentoring_coaching_group')
     meeting_date = models.DateField()
     beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_beneficiary')
     region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='mentoring_coaching_region')
@@ -957,16 +964,18 @@ class SPGFA(models.Model):
 
     provider = models.CharField(max_length=20, choices=CP_CHOICES)
     disbursement_date = models.DateField()
-    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_beneficiary')        
+    beneficiary = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_beneficiary')
+    nationality  = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_nationality')                
     region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_region')
     district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_district')
     settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='gfa_settlement') 
-    group = models.ForeignKey(Group, on_delete=models.CASCADE, null=False, blank=False, related_name='gfa_group')
+    group = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, null=False, blank=False, related_name='gfa_group')
     household_beneficiary_name = models.CharField(max_length=25)
     transfer_value = models.PositiveIntegerField(validators=[MaxValueValidator(999999999)])
     component = models.CharField(max_length=10, default='SP')
 
     # Actual field names
+    actual_nationality = models.CharField(max_length=35)
     actual_region = models.CharField(max_length=35)  # Store actual region name
     actual_district = models.CharField(max_length=35)  # Store actual district name
     actual_settlement = models.CharField(max_length=35)  # Store actual settlement name
@@ -983,7 +992,7 @@ class SPGFA(models.Model):
         verbose_name_plural = "GFA Details"
 
     def __str__(self):
-        return f"GFA Details for {self.beneficiary.name_of_household_head}"
+        return f"GFA Details for {self.beneficiary.name_of_participant}"
 
 
 
@@ -1206,7 +1215,7 @@ class LPDOnFarm(models.Model):
 
         provider = models.CharField(max_length=20, choices=CP_CHOICES)
         name_of_participant = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_onfarm_participant')
-        group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='lpd_onfarm_group')        
+        group = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_onfarm_group')        
         value_date = models.DateField()
         region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_onfarm_region')
         district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_onfarm_district')
@@ -1231,7 +1240,7 @@ class LPDOnFarm(models.Model):
             verbose_name_plural = "LPD On-Farm Details"
 
         def __str__(self):
-            return f"LPD On-Farm Details for {self.beneficiary.name_of_household_head}"
+            return f"LPD On-Farm Details for {self.beneficiary.name_of_participant}"
 
 # # Receiver to update actual field names
 # @receiver(post_save, sender=LPDOnFarm)
@@ -1313,7 +1322,7 @@ class LPDOffFarm(models.Model):
 
         provider = models.CharField(max_length=20, choices=CP_CHOICES)        
         name_of_participant = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_offfarm_participant')
-        group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='lpd_offfarm_group')        
+        group = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_offfarm_group')        
         value_date = models.DateField()
         region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_offfarm_region')
         district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_offfarm_district')
@@ -1339,7 +1348,7 @@ class LPDOffFarm(models.Model):
             verbose_name_plural = "LPD Off-Farm Details"
 
         def __str__(self):
-            return f"LPD Off-Farm Details for {self.beneficiary.name_of_household_head}"
+            return f"LPD Off-Farm Details for {self.beneficiary.name_of_participant}"
         
 # # Receiver to update actual field names
 # @receiver(post_save, sender=LPDOffFarm)
@@ -1418,7 +1427,7 @@ class LPDNonFarm(models.Model):
 
         provider = models.CharField(max_length=20, choices=CP_CHOICES)
         name_of_participant = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_nonfarm_participant')
-        group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='lpd_nonfarm_group')        
+        group = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_nonfarm_group')        
         value_date = models.DateField()
         region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_nonfarm_region')
         district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='lpd_nonfarm_district')
@@ -1444,7 +1453,7 @@ class LPDNonFarm(models.Model):
             verbose_name_plural = "LPD Non-Farm Details"
 
         def __str__(self):
-            return f"LPD Non-Farm Details for {self.beneficiary.name_of_household_head}"
+            return f"LPD Non-Farm Details for {self.beneficiary.name_of_participant}"
 
 
 

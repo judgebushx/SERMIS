@@ -76,7 +76,7 @@ class SEMCCommunityParticipationForm(forms.ModelForm):
         exclude = ['group', 'beneficiary', 'nationality', 
                    'region', 'district', 'settlement', 'ID_type', 'ID_number',
                    'group_representative', 'actual_nationality', 'actual_region', 
-                   'actual_district', 'actual_settlement', 
+                   'actual_district', 'actual_settlement', 'actual_group'
                    ]
         fields = '__all__'
         
@@ -88,7 +88,12 @@ class SEMCCommunityParticipationForm(forms.ModelForm):
 class SEMCSBCCForm(forms.ModelForm):
     class Meta:
         model = SEMCSBCC
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'beneficiary', 'nationality', 
+                   'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_group'
+                   
+                   ]
         fields = '__all__'
         
         widgets = {
@@ -97,7 +102,12 @@ class SEMCSBCCForm(forms.ModelForm):
 class SPGFAForm(forms.ModelForm):
     class Meta:
         model = SPGFA
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'beneficiary', 'nationality', 
+                   'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_group'
+                   
+                   ]
         fields = '__all__'
         
         widgets = {
@@ -201,7 +211,13 @@ class FinlitDetailsForm(forms.ModelForm):
 class LPDOnFarmForm(forms.ModelForm):
     class Meta:
         model = LPDOnFarm
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'beneficiary', 'nationality', 
+                   'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_group', 'name_of_participant'
+                   
+                   
+                   ]
         fields = '__all__'
         
         widgets = {
@@ -211,7 +227,12 @@ class LPDOnFarmForm(forms.ModelForm):
 class LPDOffFarmForm(forms.ModelForm):
     class Meta:
         model = LPDOffFarm
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'beneficiary','nationality', 
+                   'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_group', 'name_of_participant'
+                   
+                   ]
         fields = '__all__'
         
         widgets = {
@@ -221,7 +242,13 @@ class LPDOffFarmForm(forms.ModelForm):
 class LPDNonFarmForm(forms.ModelForm):
     class Meta:
         model = LPDNonFarm
-        exclude = ['group', 'beneficiary']
+        exclude = ['group', 'beneficiary', 'nationality', 
+                   'region', 'district', 'settlement', 'ID_type', 'ID_number',
+                   'group_representative', 'actual_nationality', 'actual_region', 
+                   'actual_district', 'actual_settlement', 'actual_group', 'name_of_participant'
+                   
+                   
+                   ]
         fields = '__all__'
         
         widgets = {

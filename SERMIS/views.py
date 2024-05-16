@@ -256,6 +256,14 @@ def semccommunityparticipation_create(request, pk):
         form = SEMCCommunityParticipationForm(request.POST)
         if form.is_valid():
             semccommunityparticipation = form.save(commit=False)
+            semccommunityparticipation.district = beneficiary  # Set district           
+            semccommunityparticipation.group = beneficiary  
+            semccommunityparticipation.region = beneficiary  # Set region
+            semccommunityparticipation.settlement = beneficiary # Set settlement
+            semccommunityparticipation.actual_group = beneficiary.nationality  # Set actual_nationality
+            semccommunityparticipation.actual_region = beneficiary.region  # Set actual_region
+            semccommunityparticipation.actual_district = beneficiary.district  # Set actual_district
+            semccommunityparticipation.actual_settlement = beneficiary.settlement 
             semccommunityparticipation.beneficiary = beneficiary
             semccommunityparticipation.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
@@ -301,6 +309,14 @@ def semcsbcc_create(request, pk):
         if form.is_valid():
             semcsbcc = form.save(commit=False)
             semcsbcc.beneficiary = beneficiary
+            semcsbcc.district = beneficiary  # Set district           
+            semcsbcc.group = beneficiary  
+            semcsbcc.region = beneficiary  # Set region
+            semcsbcc.settlement = beneficiary # Set settlement
+            semcsbcc.actual_group = beneficiary.nationality  # Set actual_nationality
+            semcsbcc.actual_region = beneficiary.region  # Set actual_region
+            semcsbcc.actual_district = beneficiary.district  # Set actual_district
+            semcsbcc.actual_settlement = beneficiary.settlement 
             semcsbcc.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
@@ -349,10 +365,10 @@ def semc_mentoring_coaching_create(request, pk):
             semc_mentoring_coaching = form.save(commit=False)
             semc_mentoring_coaching.beneficiary = beneficiary
             semc_mentoring_coaching.district = beneficiary  # Set district           
-            semc_mentoring_coaching.nationality = beneficiary  
+            semc_mentoring_coaching.group = beneficiary  
             semc_mentoring_coaching.region = beneficiary  # Set region
             semc_mentoring_coaching.settlement = beneficiary # Set settlement
-            semc_mentoring_coaching.actual_nationality = beneficiary.nationality  # Set actual_nationality
+            semc_mentoring_coaching.actual_group = beneficiary.nationality  # Set actual_nationality
             semc_mentoring_coaching.actual_region = beneficiary.region  # Set actual_region
             semc_mentoring_coaching.actual_district = beneficiary.district  # Set actual_district
             semc_mentoring_coaching.actual_settlement = beneficiary.settlement  # Set actual_settlement
@@ -402,6 +418,21 @@ def spgfa_create(request, pk):
         if form.is_valid():
             spgfa = form.save(commit=False)
             spgfa.beneficiary = beneficiary
+            spgfa.group = beneficiary 
+            spgfa.district = beneficiary  # Set district           
+            spgfa.nationality = beneficiary  
+            spgfa.region = beneficiary  # Set region
+            spgfa.settlement = beneficiary # Set settlement
+            spgfa.actual_nationality = beneficiary.nationality  # Set actual_nationality
+            spgfa.actual_group = beneficiary.group
+            spgfa.actual_region = beneficiary.region  # Set actual_region
+            spgfa.actual_district = beneficiary.district  # Set actual_district
+            spgfa.actual_settlement = beneficiary.settlement 
+
+
+
+
+
             spgfa.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
@@ -921,6 +952,15 @@ def lpdonfarm_create(request, pk):
         if form.is_valid():
             lpdonfarm = form.save(commit=False)
             lpdonfarm.beneficiary = beneficiary
+            lpdonfarm.district = beneficiary  # Set district           
+            lpdonfarm.group = beneficiary  
+            lpdonfarm.region = beneficiary  # Set region
+            lpdonfarm.settlement = beneficiary # Set settlement
+            lpdonfarm.actual_group = beneficiary.group  # Set actual_nationality
+            lpdonfarm.actual_region = beneficiary.region  # Set actual_region
+            lpdonfarm.actual_district = beneficiary.district  # Set actual_district
+            lpdonfarm.actual_settlement = beneficiary.settlement 
+            lpdonfarm.name_of_participant = beneficiary
             lpdonfarm.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
@@ -936,7 +976,7 @@ def lpdonfarm_update(request, pk):
         form = LPDOnFarmForm(request.POST, instance=lpdonfarm)
         if form.is_valid():
             form.save()
-            return redirect('beneficiary_detail', pk=lpdonfarm.beneficiary.pk)
+            return redirect('beneficiary_detail', pk=lpdonfarm.name_of_participant.pk)
     else:
         form = LPDOnFarmForm(instance=lpdonfarm)
 
@@ -945,7 +985,7 @@ def lpdonfarm_update(request, pk):
 @login_required
 def lpdonfarm_delete(request, pk):
     lpdonfarm = get_object_or_404(LPDOnFarm, pk=pk)
-    beneficiary_pk = lpdonfarm.beneficiary.pk
+    beneficiary_pk = lpdonfarm.name_of_participant.pk
 
     if request.method == 'POST':
         # Handle the confirmation of deletion
@@ -965,6 +1005,15 @@ def lpdofffarm_create(request, pk):
         if form.is_valid():
             lpdofffarm = form.save(commit=False)
             lpdofffarm.beneficiary = beneficiary
+            lpdofffarm.district = beneficiary  # Set district           
+            lpdofffarm.group = beneficiary  
+            lpdofffarm.region = beneficiary  # Set region
+            lpdofffarm.settlement = beneficiary # Set settlement
+            lpdofffarm.actual_group = beneficiary.group  # Set actual_nationality
+            lpdofffarm.actual_region = beneficiary.region  # Set actual_region
+            lpdofffarm.actual_district = beneficiary.district  # Set actual_district
+            lpdofffarm.actual_settlement = beneficiary.settlement 
+            lpdofffarm.name_of_participant = beneficiary
             lpdofffarm.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
@@ -980,7 +1029,7 @@ def lpdofffarm_update(request, pk):
         form = LPDOffFarmForm(request.POST, instance=lpdofffarm)
         if form.is_valid():
             form.save()
-            return redirect('beneficiary_detail', pk=lpdofffarm.beneficiary.pk)
+            return redirect('beneficiary_detail', pk=lpdofffarm.name_of_participant.pk)
     else:
         form = LPDOffFarmForm(instance=lpdofffarm)
 
@@ -989,7 +1038,7 @@ def lpdofffarm_update(request, pk):
 @login_required
 def lpdofffarm_delete(request, pk):
     lpdofffarm = get_object_or_404(LPDOffFarm, pk=pk)
-    beneficiary_pk = lpdofffarm.beneficiary.pk
+    beneficiary_pk = lpdofffarm.name_of_participant.pk
 
     if request.method == 'POST':
         # Handle the confirmation of deletion
@@ -1010,6 +1059,15 @@ def lpdnonfarm_create(request, pk):
         if form.is_valid():
             lpdnonfarm = form.save(commit=False)
             lpdnonfarm.beneficiary = beneficiary
+            lpdnonfarm.district = beneficiary  # Set district           
+            lpdnonfarm.group = beneficiary  
+            lpdnonfarm.region = beneficiary  # Set region
+            lpdnonfarm.settlement = beneficiary # Set settlement
+            lpdnonfarm.actual_group = beneficiary.group  # Set actual_nationality
+            lpdnonfarm.actual_region = beneficiary.region  # Set actual_region
+            lpdnonfarm.actual_district = beneficiary.district  # Set actual_district
+            lpdnonfarm.actual_settlement = beneficiary.settlement 
+            lpdnonfarm.name_of_participant = beneficiary
             lpdnonfarm.save()
             return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
@@ -1025,7 +1083,7 @@ def lpdnonfarm_update(request, pk):
         form = LPDNonFarmForm(request.POST, instance=lpdnonfarm)
         if form.is_valid():
             form.save()
-            return redirect('beneficiary_detail', pk=lpdnonfarm.beneficiary.pk)
+            return redirect('beneficiary_detail', pk=lpdnonfarm.name_of_participant.pk)
     else:
         form = LPDNonFarmForm(instance=lpdnonfarm)
 
@@ -1034,7 +1092,7 @@ def lpdnonfarm_update(request, pk):
 @login_required
 def lpdnonfarm_delete(request, pk):
     lpdnonfarm = get_object_or_404(LPDNonFarm, pk=pk)
-    beneficiary_pk = lpdnonfarm.beneficiary.pk
+    beneficiary_pk = lpdnonfarm.name_of_participant.pk
 
     if request.method == 'POST':
         # Handle the confirmation of deletion
