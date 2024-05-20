@@ -90,11 +90,67 @@
         .group-create-button:hover {
           background-color: #0056b3;
         }
-
+        .search-form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    .search-input {
+        padding: 10px;
+        border: none;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .search-button {
+        background-color: #4caf50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    .search-button:hover {
+        background-color: #3e8e41;
+    }
+    .group-list {
+        margin-top: 20px;
+    }
+    .group-list ul {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    .group-list li {
+        padding: 10px;
+        border-bottom: 1px solid #ddd;
+    }
+    .group-list li:last-child {
+        border-bottom: none;
+    }
 </style>
 </head>
 <body>
   <h1>Group List</h1>
+  <form method="get" action="{% url 'group_list' %}" class="search-form">
+    <input type="text" name="q" placeholder="Search by group name" value="{{ query|default_if_none:'' }}" class="search-input">
+    <button type="submit" class="search-button">Search</button>
+</form>
+
+<div class="group-list">
+    {% if groups %}
+        <ul>
+            {% for group in groups %}
+                <li>{{ group.name }}</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No groups found.</p>
+    {% endif %}
+</div>
+
+
+
   <table class="table-container">
     <thead>
         <tr>

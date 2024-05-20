@@ -18,25 +18,26 @@ class BeneficiaryForm(forms.ModelForm):
         fields = '__all__'
         exclude = ['group', 'created_at']
         widgets = {
+            'profiling_date': forms.DateInput(attrs={'type': 'date'}),
             # 'participant_photo': forms.FileInput(attrs={'accept': 'image/*', 'capture': 'camera'})
         }
-    def clean_household_id(self):
-            print("clean_household_id method called")
-            id_number = self.cleaned_data['household_id']
+    # def clean_household_id(self):
+    #         print("clean_household_id method called")
+    #         id_number = self.cleaned_data['household_id']
 
-            # If the instance is new (not already in the database),
-            # check for duplicate ID_number
-            if not self.instance.pk and Beneficiary.objects.filter(household_id=id_number).exists():
-                existing_person = Beneficiary.objects.get(household_id=id_number)
-                if existing_person.beneficiary_status != 'Exited':
-                    raise forms.ValidationError("A person with this ID number already exists, but the status is not 'Exited'.")
-            elif self.instance.pk:  # If editing an existing instance
-                # Check for duplicate ID_number excluding the current instance
-                existing_person = Beneficiary.objects.filter(household_id=id_number).exclude(pk=self.instance.pk).first()
-                if existing_person and existing_person.beneficiary_status != 'Exited':
-                    raise forms.ValidationError("A person with this ID number already exists, but the status is not 'Exited'.")
+    #         # If the instance is new (not already in the database),
+    #         # check for duplicate ID_number
+    #         if not self.instance.pk and Beneficiary.objects.filter(household_id=id_number).exists():
+    #             existing_person = Beneficiary.objects.get(household_id=id_number)
+    #             if existing_person.beneficiary_status != 'Exited':
+    #                 raise forms.ValidationError("A person with this ID number already exists, but the status is not 'Exited'.")
+    #         elif self.instance.pk:  # If editing an existing instance
+    #             # Check for duplicate ID_number excluding the current instance
+    #             existing_person = Beneficiary.objects.filter(household_id=id_number).exclude(pk=self.instance.pk).first()
+    #             if existing_person and existing_person.beneficiary_status != 'Exited':
+    #                 raise forms.ValidationError("A person with this ID number already exists, but the status is not 'Exited'.")
 
-            return id_number    
+    #         return id_number    
 
 class NutricashBeneficiaryForm(forms.ModelForm):
     class Meta:

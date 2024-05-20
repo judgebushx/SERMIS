@@ -1,4 +1,10 @@
 <h1 style="font-family: Calibri, sans-serif; text-align: center;">SP GFA Beneficiary</h1>
+{% if error_message %}
+<div class="alert alert-danger">
+  {{ error_message }}
+</div>
+{% endif %}
+
 <form method="POST" class="form-container">
     {% csrf_token %}
     <div class="form-group">

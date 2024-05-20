@@ -101,6 +101,7 @@ class Group(models.Model):
         ('Male', 'Male'),
         ('Female', 'Female'),
     )
+    profiling_date = models.DateTimeField(default=timezone.now)
     group_name = models.CharField(max_length=25)
     group_type = models.CharField(max_length=35, choices=GROUPTYPE_CHOICES)
     status_of_members = models.CharField(max_length=25, choices=STATUS_CHOICES, default='Refugees')
@@ -293,12 +294,20 @@ class Beneficiary(models.Model):
         ('Non-farm', 'Non-farm')
 
     )
+    GFASTATUS_CHOICES = (
+        ('Enrolled in GFA', 'Enrolled in GFA'),
+        ('Not enrolled in GFA', 'Not enrolled in GFA'),
+        ('Exited from GFA', 'Exited from GFA')
+
+    )
+
+    profiling_date = models.DateTimeField()
     group = models.ForeignKey(Group, on_delete=models.CASCADE)   
     region = models.CharField(max_length=35, choices=REGION_CHOICES)
     district = models.CharField(max_length=35, choices=DISTRICT_CHOICES)
     settlement = models.CharField(max_length=35, choices=SETTLEMENT_CHOICES)    
     nationality = models.CharField(max_length=35, choices=NATIONALITY_CHOICES)
-    household_id = models.CharField(max_length=12)
+    household_id = models.CharField(max_length=12, unique=True)
     name_of_household_head = models.CharField(max_length=50)
     household_head_phone = models.IntegerField(validators=[MaxValueValidator(999999999, message="9 digits maximum" )]  )
     participant_individual_id = models.CharField(max_length=12)
@@ -315,6 +324,7 @@ class Beneficiary(models.Model):
     education_level = models.CharField(max_length=35, choices=EDUCLEVEL_CHOICES)
     religion = models.CharField(max_length=35, choices=RELIGION_CHOICES)
     lpd_component = models.CharField(max_length=10, choices=LPD_CHOICES)
+    gfa_status = models.CharField(max_length=35, choices=GFASTATUS_CHOICES, default='Enrolled in GFA')
     beneficiary_status = models.CharField(max_length=35, choices=STATUS_CHOICES, default='Enrolled')
     created_at = models.DateTimeField(default=timezone.now)        
     
@@ -973,6 +983,7 @@ class SPGFA(models.Model):
     household_beneficiary_name = models.CharField(max_length=25)
     transfer_value = models.PositiveIntegerField(validators=[MaxValueValidator(999999999)])
     component = models.CharField(max_length=10, default='SP')
+   
 
     # Actual field names
     actual_nationality = models.CharField(max_length=35)

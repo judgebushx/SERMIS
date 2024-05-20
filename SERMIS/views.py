@@ -16,6 +16,7 @@ from django.urls import reverse
 from django.contrib import messages
 from django.http import HttpResponse
 from django.utils import timezone
+from datetime import timedelta
 from datetime import datetime
 
 
@@ -23,8 +24,12 @@ from datetime import datetime
 # Group Views--------------------------------------------------------------------------
 @login_required
 def group_list(request):
-    groups = Group.objects.all()
-    return render(request, 'group_list.html', {'groups': groups})
+    query = request.GET.get('q')
+    if query:
+        groups = Group.objects.filter(group_name__icontains=query)
+    else:
+        groups = Group.objects.all()
+    return render(request, 'group_list.html', {'groups': groups, 'query': query})
 
 
 @login_required
@@ -151,18 +156,20 @@ def beneficiary_create(request, pk):
         form = BeneficiaryForm(request.POST)
 
         if form.is_valid():
-            beneficiary = form.save(commit=False)
-            beneficiary.group = group
-            beneficiary.save()
+            household_id = form.cleaned_data['household_id']
+            if Beneficiary.objects.filter(household_id=household_id).exists():
+                form.add_error('household_id', 'A beneficiary with this household ID already exists.')
+            else:
+                beneficiary = form.save(commit=False)
+                beneficiary.group = group
+                beneficiary.save()
+                return redirect('group_detail', pk=pk)
 
-            return redirect('group_detail', pk=pk)
-        else:
-            return JsonResponse({'status': 'error', 'errors': form.errors})
+        return render(request, 'beneficiary_form.html', {'form': form, 'status': 'error', 'errors': form.errors})
     else:
         form = BeneficiaryForm()
 
     return render(request, 'beneficiary_form.html', {'form': form})
-
 # def beneficiary_create(request, pk):
 #     group = get_object_or_404(Group, pk=pk)
 
@@ -260,7 +267,7 @@ def semccommunityparticipation_create(request, pk):
             semccommunityparticipation.group = beneficiary  
             semccommunityparticipation.region = beneficiary  # Set region
             semccommunityparticipation.settlement = beneficiary # Set settlement
-            semccommunityparticipation.actual_group = beneficiary.nationality  # Set actual_nationality
+            semccommunityparticipation.actual_group = beneficiary.group  # Set actual_nationality
             semccommunityparticipation.actual_region = beneficiary.region  # Set actual_region
             semccommunityparticipation.actual_district = beneficiary.district  # Set actual_district
             semccommunityparticipation.actual_settlement = beneficiary.settlement 
@@ -368,7 +375,7 @@ def semc_mentoring_coaching_create(request, pk):
             semc_mentoring_coaching.group = beneficiary  
             semc_mentoring_coaching.region = beneficiary  # Set region
             semc_mentoring_coaching.settlement = beneficiary # Set settlement
-            semc_mentoring_coaching.actual_group = beneficiary.nationality  # Set actual_nationality
+            semc_mentoring_coaching.actual_group = beneficiary.group  # Set actual_nationality
             semc_mentoring_coaching.actual_region = beneficiary.region  # Set actual_region
             semc_mentoring_coaching.actual_district = beneficiary.district  # Set actual_district
             semc_mentoring_coaching.actual_settlement = beneficiary.settlement  # Set actual_settlement
@@ -412,47 +419,70 @@ def semc_mentoring_coaching_delete(request, pk):
 @login_required
 def spgfa_create(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
+    error_message = None
 
     if request.method == 'POST':
-        form = SPGFAForm(request.POST)
-        if form.is_valid():
-            spgfa = form.save(commit=False)
-            spgfa.beneficiary = beneficiary
-            spgfa.group = beneficiary 
-            spgfa.district = beneficiary  # Set district           
-            spgfa.nationality = beneficiary  
-            spgfa.region = beneficiary  # Set region
-            spgfa.settlement = beneficiary # Set settlement
-            spgfa.actual_nationality = beneficiary.nationality  # Set actual_nationality
-            spgfa.actual_group = beneficiary.group
-            spgfa.actual_region = beneficiary.region  # Set actual_region
-            spgfa.actual_district = beneficiary.district  # Set actual_district
-            spgfa.actual_settlement = beneficiary.settlement 
+        # Calculate the date two years after the profiling_date
+        two_years_after_profiling_date = beneficiary.profiling_date + timedelta(days=2*365)
 
+        # Check if the current date is more than two years after the profiling_date
+        if timezone.now() > two_years_after_profiling_date:
+            # Update gfa_status to 'Exited from GFA'
+            beneficiary.gfa_status = 'Exited from GFA'
+            beneficiary.save()
+            # Set error message to prevent form submission
+            error_message = 'Cannot update SPGFA record as the beneficiary tenure of 2 years has elapsed since profiling date.'
+            form = SPGFAForm()  # Ensure form is defined even when the error condition is met
+        else:
+            form = SPGFAForm(request.POST)
+            if form.is_valid():
+                spgfa = form.save(commit=False)
+                spgfa.beneficiary = beneficiary
+                spgfa.group = beneficiary.group
+                spgfa.district = beneficiary.district
+                spgfa.nationality = beneficiary.nationality
+                spgfa.region = beneficiary.region
+                spgfa.settlement = beneficiary.settlement
+                spgfa.actual_nationality = beneficiary.nationality
+                spgfa.actual_group = beneficiary.group
+                spgfa.actual_region = beneficiary.region
+                spgfa.actual_district = beneficiary.district
+                spgfa.actual_settlement = beneficiary.settlement
 
-
-
-
-            spgfa.save()
-            return redirect('beneficiary_detail', pk=beneficiary.pk)
+                spgfa.save()
+                return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
         form = SPGFAForm()
 
-    return render(request, 'spgfa_form.html', {'form': form})
+    return render(request, 'spgfa_form.html', {'form': form, 'error_message': error_message})
 
 @login_required
 def spgfa_update(request, pk):
     spgfa = get_object_or_404(SPGFA, pk=pk)
-    
+    beneficiary = spgfa.beneficiary
+    error_message = None
+
     if request.method == 'POST':
-        form = SPGFAForm(request.POST, instance=spgfa)
-        if form.is_valid():
-            form.save()
-            return redirect('beneficiary_detail', pk=spgfa.beneficiary.pk)
+        # Calculate the date two years after the profiling_date
+        two_years_after_profiling_date = beneficiary.profiling_date + timedelta(days=2*365)
+
+        # Check if the current date is more than two years after the profiling_date
+        if timezone.now() > two_years_after_profiling_date:
+            # Update gfa_status to 'Exited from GFA'
+            beneficiary.gfa_status = 'Exited from GFA'
+            beneficiary.save()
+            # Set error message to prevent form submission
+            error_message = 'Cannot update SPGFA record as the beneficiary tenure of 2 years has elapsed since profiling date.'
+            form = SPGFAForm(instance=spgfa)  # Ensure form is defined even when the error condition is met
+        else:
+            form = SPGFAForm(request.POST, instance=spgfa)
+            if form.is_valid():
+                form.save()
+                return redirect('beneficiary_detail', pk=beneficiary.pk)
     else:
         form = SPGFAForm(instance=spgfa)
 
-    return render(request, 'spgfa_form.html', {'form': form})
+    return render(request, 'spgfa_form.html', {'form': form, 'error_message': error_message})
 
 @login_required
 def spgfa_delete(request, pk):
