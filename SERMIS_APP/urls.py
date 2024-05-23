@@ -17,7 +17,7 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from SERMIS import views
-from SERMIS.views import group_list, custom_logout, spnutricash_create, spnutricash_update, spnutricash_delete, nutricashbeneficiary_delete
+from SERMIS.views import group_list, custom_logout, spnutricash_create, spnutricash_update, spnutricash_delete, nutricashbeneficiary_delete, NutricashDetailsCountView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -121,5 +121,8 @@ urlpatterns = [
     path('finlitdetails/<int:beneficiary_id>/', views.spnutricash_details, name='spnutricash_details'),
     path('finlit/update/<int:pk>/', views.finlit_details_update, name='finlit_details_update'),
     path('finlit/delete/<int:pk>/', views.finlit_details_delete, name='finlit_details_delete'),
+
+
+    path('nutricash_details_count/<int:beneficiary_id>/', NutricashDetailsCountView.as_view(), name='nutricash_details_count'),
 
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

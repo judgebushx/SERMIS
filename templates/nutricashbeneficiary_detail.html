@@ -68,12 +68,108 @@
 .btn:hover {
     opacity: 0.8;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.gauge {
+  width: 100%;
+  max-width: 250px;
+  font-family: "Roboto", sans-serif;
+  font-size: 32px;
+  color: #004033;
+}
+
+.gauge__body {
+  width: 100%;
+  height: 0;
+  padding-bottom: 50%;
+  background: #b4c0be;
+  position: relative;
+  border-top-left-radius: 100% 200%;
+  border-top-right-radius: 100% 200%;
+  overflow: hidden;
+}
+
+.gauge__fill {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: inherit;
+  height: 100%;
+  background: #009578;
+  transform-origin: center top;
+  transform: rotate(0.25turn);
+  transition: transform 0.2s ease-out;
+}
+
+.gauge__cover {
+  width: 75%;
+  height: 150%;
+  background: #ffffff;
+  border-radius: 50%;
+  position: absolute;
+  top: 25%;
+  left: 50%;
+  transform: translateX(-50%);
+
+  /* Text */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-bottom: 25%;
+  box-sizing: border-box;
+}
+.table-container {
+        overflow-x: auto;
+        width: 80%;
+        margin: 40px auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .table-container table {
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .table-container th, .table-container td {
+        border: 1px solid #ddd;
+        padding: 10px;
+        text-align: left;
+    }
+    .table-container th {
+        background-color: #f0f0f0;
+    }
+    .table-container td {
+        border-top: 1px solid #fff;
+    }
+    .table-container td:first-child {
+        border-left: 1px solid #fff;
+    }
+    .table-container td:last-child {
+        border-right: 1px solid #fff;
+    }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Nutricash Beneficiary Details for {{nutricashbeneficiary.nutricash_beneficiary_name}}</h1>
-        <table>
+        <table class="table-container">
             <tr>
                 <th>Profiling Date</th>
                 <td>{{ nutricashbeneficiary.profiling_date }}</td>
@@ -126,7 +222,7 @@
              
             </tr>
         </table>
-        <table>
+        <table class="table-container">
             <tr>
                 <th colspan="4">Nutricash Details for {{nutricashbeneficiary.nutricash_beneficiary_name}}</th>
             </tr>
@@ -157,6 +253,50 @@
         <!-- <a href="{% url 'spnutricash_update'  nutricashbeneficiary.pk %}" class="add-button">Update Nutricash Details</a> -->
 </body>
     </div>
+
+
+
+
+
+    <div class="gauge">
+        <div class="gauge__body">
+            <div class="gauge__fill"></div>
+            <div class="gauge__cover"></div>
+        </div>
+    </div>
+    
+    <script>
+        const gaugeElement = document.querySelector(".gauge");
+    
+        function setGaugeValue(gauge, value) {
+            if (value < 0 || value > 1) {
+                return;
+            }
+            gauge.querySelector(".gauge__fill").style.transform = `rotate(${value / 2}turn)`;
+            gauge.querySelector(".gauge__cover").textContent = `${Math.round(value * 100)}%`;
+        }
+    
+        fetch('/nutricash_details_count/7/')  // Replace '7' with the actual beneficiary ID
+            .then(response => response.json())
+            .then(data => {
+                const count = data.count;
+                const maxValue = 10; // Adjust this as per your requirement
+                const gaugeValue = count / maxValue; // Calculate the gauge value
+                setGaugeValue(gaugeElement, gaugeValue);
+            })
+            .catch(error => {
+                console.error('Error fetching Nutricash details count:', error);
+            });
+    </script>
+    
+    
+    
+    
+    
 </body>
 </html>
 {% endblock %}
+
+
+
+

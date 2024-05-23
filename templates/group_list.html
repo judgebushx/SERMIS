@@ -39,7 +39,7 @@
                 width: 100%;
             }
             .table-container th, .table-container td {
-                border: 1px solid #ddd;
+                border: 5px solid #ddd;
                 padding: 10px;
                 text-align: left;
             }
@@ -130,13 +130,15 @@
     }
 </style>
 </head>
+
 <body>
   <h1>Group List</h1>
   <form method="get" action="{% url 'group_list' %}" class="search-form">
     <input type="text" name="q" placeholder="Search by group name" value="{{ query|default_if_none:'' }}" class="search-input">
+    &nbsp;
     <button type="submit" class="search-button">Search</button>
 </form>
-
+&nbsp;
 <div class="group-list">
     {% if groups %}
         <ul>
@@ -173,6 +175,14 @@
         {% endfor %}
     </tbody>
 </table>
+&nbsp;
+<p>&nbsp;
+  &nbsp;
+  &nbsp;
+  &nbsp;
+  &nbsp;
+  &nbsp;</p>
+<p></p>
   <p>
     <a href="{% url 'group_create' %}" class="group-create-button">Create New Group</a>
   </p>

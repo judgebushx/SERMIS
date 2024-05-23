@@ -269,15 +269,7 @@ th {
                 <th>Name of Participant</th>
                 <th>Gender of participant</th>
                 <th>Participant age</th>
-                <th>Participant Phone</th>
-                <th>Relatiuonship to head of household</th>
-                <th>Gender of household head</th>
-                <th>Age of household head</th>
-                <th>Disability status of household head</th>
-                <th>Marital status</th>
-                <th>Educational level</th>
-                <th>Religion</th>
-                <th>Action Buttons</th>
+                
             </tr>
         </thead>
         <tbody>
@@ -296,14 +288,6 @@ th {
                 <td>{{ beneficiary.name_of_participant }}</td>
                 <td>{{ beneficiary.gender_of_participant }}</td>
                 <td>{{ beneficiary.participant_age }}</td>
-                <td>{{ beneficiary.participant_phone }}</td>
-                <td>{{ beneficiary.relationship_with_household_head }}</td>
-                <td>{{ beneficiary.gender_hhh }}</td>
-                <td>{{ beneficiary.age_of_hhh }}</td>
-                <td>{{ beneficiary.disablity_of_hhh }}</td>
-                <td>{{ beneficiary.marital_status }}</td>
-                <td>{{ beneficiary.education_level }}</td>
-                <td>{{ beneficiary.religion }}</td>
                 <td class="action-buttons">
                     <a href="{% url 'beneficiary_update' beneficiary.pk %}" class="update-button">Update</a>
                     <a href="{% url 'beneficiary_delete' beneficiary.pk %}" class="delete-button">Delete</a>

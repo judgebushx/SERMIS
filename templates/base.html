@@ -88,9 +88,13 @@
         <a href="{% url 'group_list' %}" class="home-link">Home</a>
     </div>
          <p class="paragraph-space"></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+
 
     <header>
         <!-- Navigation menu or logo -->
+        
         <div class="top-left">
            
             {% if user.is_authenticated %}
@@ -104,6 +108,8 @@
         </div>
        
         {% if user.is_authenticated %}
+
+        <p>
         <div id="currentDateTime" class="date-time" style="position: absolute; top: 164px; right: 10px;"></div>
         {% endif %}
         <!-- JavaScript code to update date and time -->
@@ -122,7 +128,7 @@
        
         </div>
    
-        
+    </p> 
     </header>
     
     <main>

@@ -18,8 +18,11 @@ from django.http import HttpResponse
 from django.utils import timezone
 from datetime import timedelta
 from datetime import datetime
-
-
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from django.views.generic import View
+from django.shortcuts import get_object_or_404
+from rest_framework import status 
 
 # Group Views--------------------------------------------------------------------------
 @login_required
@@ -438,11 +441,11 @@ def spgfa_create(request, pk):
             if form.is_valid():
                 spgfa = form.save(commit=False)
                 spgfa.beneficiary = beneficiary
-                spgfa.group = beneficiary.group
-                spgfa.district = beneficiary.district
-                spgfa.nationality = beneficiary.nationality
-                spgfa.region = beneficiary.region
-                spgfa.settlement = beneficiary.settlement
+                spgfa.group = beneficiary
+                spgfa.district = beneficiary
+                spgfa.nationality = beneficiary
+                spgfa.region = beneficiary
+                spgfa.settlement = beneficiary
                 spgfa.actual_nationality = beneficiary.nationality
                 spgfa.actual_group = beneficiary.group
                 spgfa.actual_region = beneficiary.region
@@ -1185,3 +1188,9 @@ def custom_logout(request):
     return redirect(reverse('login'))  # 'login' is the name of the login URL
 
 
+
+class NutricashDetailsCountView(APIView):
+    def get(self, request, beneficiary_id):
+        beneficiary = get_object_or_404(NutricashBeneficiary, id=beneficiary_id)
+        count = SPNutricashDetails.objects.filter(nutricash_beneficiary_name=beneficiary).count()
+        return Response({'count': count}, status=status.HTTP_200_OK)
