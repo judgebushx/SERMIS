@@ -77,9 +77,16 @@
             font-weight: bold;
             color: rgb(46, 88, 177);
         }
+        .page-container {
+        overflow-x: auto;
+        width: 98%;
+        margin: 60px auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
     </style>
 </head>
 <body>
+<div class="page-container">
     <div class="logo">
         <img src="{% static 'images/wfp_logo.jpg' %}" alt="Logo" class="logo">
     </div>
@@ -88,8 +95,7 @@
         <a href="{% url 'group_list' %}" class="home-link">Home</a>
     </div>
          <p class="paragraph-space"></p>
-<p>&nbsp;</p>
-<p>&nbsp;</p>
+
 
 
     <header>
@@ -146,5 +152,6 @@
        
 
     {% endif %}
+</div>
 </body>
 

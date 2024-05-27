@@ -2,12 +2,12 @@ from django.db import models
 
 from django.core.exceptions import ValidationError 
 from django.core.validators import MaxValueValidator, MinValueValidator
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, pre_save
 from django.dispatch import receiver
-from django.db.models import Count
+from django.db.models import ExpressionWrapper, F, DateTimeField, Count
 from django.utils import timezone
 from django.db.models import Q
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
 from django.utils import timezone
 from datetime import datetime
@@ -326,10 +326,14 @@ class Beneficiary(models.Model):
     lpd_component = models.CharField(max_length=10, choices=LPD_CHOICES)
     gfa_status = models.CharField(max_length=35, choices=GFASTATUS_CHOICES, default='Enrolled in GFA')
     beneficiary_status = models.CharField(max_length=35, choices=STATUS_CHOICES, default='Enrolled')
+    family_members_count = models.PositiveIntegerField(editable=False, default=0)
     created_at = models.DateTimeField(default=timezone.now)        
     
 
-
+    @property
+    def family_members_count(self):
+        return self.family_member_group_representative.count() + 1
+    
     def update_group_member_counts(sender, instance, **kwargs):
         group = instance.group
         beneficiaries = Beneficiary.objects.filter(group=group)
@@ -344,12 +348,67 @@ class Beneficiary(models.Model):
         group.male_youth = beneficiaries.filter(participant_age__lte=30, gender_of_participant='Male').count()
         group.female_youth = beneficiaries.filter(participant_age__lte=30, gender_of_participant='Female').count()
         group.num_disabilities = beneficiaries.filter(disablity_of_hhh='Living with a disability').count()
+        
 
         group.save()
-   
+    
+
+    
     def __str__(self):
             return self.name_of_participant
+
+
+
+
+
+
+class FamilyMember(models.Model):
+    IDtype_CHOICES = (
+        ('NIN', 'NIN'),
+        ('Attestation Individual Number', 'Attestation Individual Number'),
+        ('KSRN Number', 'KSRN Number'),
+        ('Next of Kin NIN', 'Next of Kin NIN'),
+        ('Next of Kin AIN', 'Next of Kin AIN'),
+        ('Other government issued ID', 'Other government issued ID'),
+    )
+
+    GENDER_CHOICES = (
+        ('Male', 'Male'),
+        ('Female', 'Female')
+    )
+    PREGLACT_CHOICES = (
+        ('None', 'None'),
+        ('Pregnant', 'Pregnant'),
+        ('Lactating', 'Lactating'),
+        ('Pregnant & Lactating', 'Pregnant & Lactating'),        
+    )
+    profiling_date = models.DateTimeField(default=timezone.now)
+    nationality = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='family_member_nationality')
+    region = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='family_member_region')
+    district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='family_member_district')
+    settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='family_member_settlement')
+    family_member_name = models.CharField(max_length=50)
+    family_member_dob = models.DateField()
+    family_member_gender = models.CharField(max_length=8, choices=GENDER_CHOICES)
+    ID_type = models.CharField(max_length=30, choices=IDtype_CHOICES, default='NIN')
+    household_id = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='family_member_household_id')
+    family_member_individual_id = models.CharField(max_length=12)
+    group_representative = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='family_member_group_representative')
+    pregnant_or_lactating = models.CharField(max_length=22, choices=PREGLACT_CHOICES, default='None')
+    created_at = models.DateTimeField(default=timezone.now)
+
+    # Additional fields to store actual names
+    actual_nationality = models.CharField(max_length=35, blank=True)
+    actual_region = models.CharField(max_length=35, blank=True)
+    actual_district = models.CharField(max_length=35, blank=True)
+    actual_settlement = models.CharField(max_length=35, blank=True)
+
+   
+    def __str__(self):
+        return self.family_member_name
+
     
+
 class SAGEBeneficiary(models.Model):
     STATUS_CHOICES = (
         ('Enrolled', 'Enrolled'),
@@ -392,6 +451,60 @@ class SAGEBeneficiary(models.Model):
     actual_region = models.CharField(max_length=35, blank=True)
     actual_district = models.CharField(max_length=35, blank=True)
     actual_settlement = models.CharField(max_length=35, blank=True)
+
+
+@receiver(pre_save, sender=FamilyMember)
+def track_original_dob(sender, instance, **kwargs):
+    # Check if the instance is being updated
+    if instance.pk:
+        # Retrieve the original instance from the database
+        original_instance = sender.objects.get(pk=instance.pk)
+        # Compare the new date of birth with the original one
+        if instance.family_member_dob != original_instance.family_member_dob:
+            instance.family_member_dob_changed = True  # Set the attribute to True if the date of birth changed
+        else:
+            instance.family_member_dob_changed = False  # Set the attribute to False if the date of birth didn't change
+
+
+@receiver(post_save, sender=FamilyMember)
+def add_to_sage_beneficiary(sender, instance, created, **kwargs):
+    if created or getattr(instance, 'family_member_dob_changed', False):
+        age = (datetime.now().date() - instance.family_member_dob).days // 365
+        if age >= 80:
+            from .models import SAGEBeneficiary
+            # Retrieve related beneficiary instance
+            beneficiary = instance.household_id
+            
+            district = beneficiary
+            nationality = beneficiary
+            region = beneficiary
+            settlement = beneficiary
+            SAGEBeneficiary.objects.create(
+                candidate_name=instance.family_member_name,
+                candidate_dob=instance.family_member_dob,
+                candidate_gender=instance.family_member_gender,
+                candidate_individual_id=instance.family_member_individual_id,
+                actual_nationality=instance.actual_nationality,
+                actual_region=instance.actual_region,
+                actual_settlement=instance.actual_settlement,
+                actual_district=instance.actual_district,                
+                household_id=instance.household_id,
+                group_representative=instance.group_representative,
+                beneficiary_status='Enrolled',  # Set the default status
+                district=district,  # Set the district
+                nationality=nationality,
+                region=region,
+                settlement=settlement,
+            )
+
+@receiver(post_delete, sender=FamilyMember)
+def delete_related_sage_beneficiary(sender, instance, **kwargs):
+    try:
+        sage_beneficiary = SAGEBeneficiary.objects.get(household_id=instance.household_id,
+                                                       candidate_name=instance.family_member_name)
+        sage_beneficiary.delete()
+    except SAGEBeneficiary.DoesNotExist:
+        pass  # If no related SageBeneficiary exists, do nothing
 
 
 # @receiver(post_save, sender=SAGEBeneficiary)
@@ -448,11 +561,12 @@ class NutricashBeneficiary(models.Model):
     district = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='nutricash_beneficiaries_district')
     settlement = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='nutricash_beneficiaries_settlement')
     ID_type = models.CharField(max_length=30, choices=IDtype_CHOICES, default='NIN')
-    ID_number = models.CharField(max_length=16)
+    household_id = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='nutricash_beneficiaries_household_id')
+    candidate_individual_id = models.CharField(max_length=12)
     group_representative = models.ForeignKey(Beneficiary, on_delete=models.CASCADE, related_name='nutricash_beneficiaries_group_representative')
     age = models.IntegerField(validators=[MaxValueValidator(99, message="2 digits maximum" )])
-    enrollment_gestational_age = models.IntegerField(validators=[MaxValueValidator(99, message="2 digits maximum" )])
-    expected_delivery_date = models.DateField()
+    enrollment_gestational_age = models.IntegerField(validators=[MaxValueValidator(99, message="2 digits maximum" )], null=True)
+    expected_delivery_date = models.DateField(null=True)
     pregnant_or_lactating = models.CharField(max_length=22, choices=PREGLACT_CHOICES)
     beneficiary_status = models.CharField(max_length=32, choices=STATUS_CHOICES)
     created_at = models.DateTimeField(default=timezone.now)
@@ -475,7 +589,70 @@ class NutricashBeneficiary(models.Model):
             self.exit_date = None
         
         super().save(*args, **kwargs)
+@receiver(pre_save, sender=FamilyMember)
+def track_pregnant_lactating(sender, instance, **kwargs):
+    # Check if the instance is being updated
+    if instance.pk:
+        # Retrieve the original instance from the database
+        original_instance = sender.objects.get(pk=instance.pk)
+        # Compare the new date of birth with the original one
+        if instance.pregnant_or_lactating != original_instance.pregnant_or_lactating:
+            instance.pregnant_or_lactating_changed = True
+        else:
+            instance.pregnant_or_lactating_changed = False
+            
 
+
+        if instance.family_member_dob != original_instance.family_member_dob:
+            instance.family_member_dob_changed = True  # Set the attribute to True if the date of birth changed
+        else:
+            instance.family_member_dob_changed = False  # Set the attribute to False if the date of birth didn't change
+
+
+@receiver(post_save, sender=FamilyMember)
+def add_to_nutricash_beneficiary(sender, instance, created, **kwargs):
+    if created or getattr(instance, 'pregnant_or_lactating_changed', False):
+        from .models import NutricashBeneficiary
+        beneficiary = instance.household_id
+
+        # Calculate age
+        today = datetime.now().date()
+        age = today.year - instance.family_member_dob.year - ((today.month, today.day) < (instance.family_member_dob.month, instance.family_member_dob.day))
+
+
+        district = beneficiary
+        nationality = beneficiary
+        region = beneficiary
+        settlement = beneficiary
+
+
+        NutricashBeneficiary.objects.create(
+            nutricash_beneficiary_name=instance.family_member_name,
+            candidate_individual_id=instance.family_member_individual_id,
+            actual_nationality=instance.actual_nationality,
+            actual_region=instance.actual_region,
+            actual_settlement=instance.actual_settlement,
+            actual_district=instance.actual_district,
+            pregnant_or_lactating=instance.pregnant_or_lactating,
+            age=age,  # Set the calculated age
+            household_id=instance.household_id,
+            group_representative=instance.group_representative,
+            beneficiary_status='Enrolled',  # Set the default status
+            district=district,  # Set the district
+            nationality=nationality,
+            region=region,
+            settlement=settlement,
+        )
+
+
+@receiver(post_delete, sender=FamilyMember)
+def delete_related_nutricashbeneficiary(sender, instance, **kwargs):
+    try:
+        nutricashbeneficiary = NutricashBeneficiary.objects.get(household_id=instance.household_id,
+                                                       nutricash_beneficiary_name=instance.family_member_name)
+        nutricashbeneficiary.delete()
+    except NutricashBeneficiary.DoesNotExist:
+        pass  # If no related SageBeneficiary exists, do nothing
 
 
 class SPNutricashDetails(models.Model):
@@ -559,7 +736,7 @@ class SPNutricashDetails(models.Model):
                 self.actual_district = beneficiary_instance.district.district
                 self.actual_settlement = beneficiary_instance.settlement.settlement
                 self.actual_ID_type = beneficiary_instance.ID_type
-                self.actual_ID_number = beneficiary_instance.ID_number
+                self.actual_ID_number = beneficiary_instance.candidate_individual_id
         super().save(*args, **kwargs)
 
 
@@ -1151,17 +1328,7 @@ class SPSAGEdetails(models.Model):
         def __str__(self):
             return f"SAGE Details for {self.sage_beneficiary_name}"
 
-# # Receiver to update actual field names
-# @receiver(post_save, sender=SPSAGEdetails)
-# def update_actual_names(sender, instance, created, **kwargs):
-#     if created:
-#         beneficiary_instance = instance.beneficiary
-#         if beneficiary_instance:
-#             instance.actual_region = beneficiary_instance.region
-#             instance.actual_district = beneficiary_instance.district
-#             instance.actual_settlement = beneficiary_instance.settlement
-#             instance.actual_group = beneficiary_instance.group.group_name
-#         instance.save()   
+
 
 class LPDOnFarm(models.Model):
    

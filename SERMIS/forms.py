@@ -1,5 +1,5 @@
 from django import forms
-from .models import Group, Beneficiary, SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SAGEBeneficiary, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, FinlitBeneficiary, FinLitDetails, NutricashBeneficiary
+from .models import Group, Beneficiary, FamilyMember, SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SAGEBeneficiary, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, FinlitBeneficiary, FinLitDetails, NutricashBeneficiary
 from django.core.validators import MaxValueValidator, MinValueValidator
 
 
@@ -38,6 +38,21 @@ class BeneficiaryForm(forms.ModelForm):
     #                 raise forms.ValidationError("A person with this ID number already exists, but the status is not 'Exited'.")
 
     #         return id_number    
+class FamilyMemberForm(forms.ModelForm):
+    class Meta:
+        model = FamilyMember
+        exclude = ['group_representative', 'region', 'district',
+                   'settlement', 'group_representative', 'nationality',
+                   'actual_nationality', 'actual_region', 'actual_district',
+                   'actual_settlement', 'created_at', 'household_id'
+                   
+                   ]
+        fields = '__all__'
+        widgets = {
+            'profiling_date': forms.DateInput(attrs={'type': 'date'}),
+            'family_member_dob': forms.DateInput(attrs={'type': 'date'}),  
+        } 
+
 
 class NutricashBeneficiaryForm(forms.ModelForm):
     class Meta:

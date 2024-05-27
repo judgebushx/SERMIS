@@ -239,10 +239,18 @@ th {
   text-align: center;
   color: #fff;
 }
+
+.page-container {
+        overflow-x: auto;
+        width: 98%;
+        margin: 60px auto;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
     </style>
 </head>
 <body>
-  
+
+<div class="page-container" >
     <h1 style="text-align: center; margin-top: 2em; color: rgb(12, 12, 12);">Beneficiary Details for <span style="color: white;">{{ beneficiary.name_of_participant }}</span></h1><span style="color:rgb(241, 244, 242)">{{ person.Client_Name }}</span></h1>
     
     <!-- <div class="table-container">
@@ -334,6 +342,11 @@ th {
                 {% endif %}
 
             </tr>
+            <th>Family size</th>
+            <td>{{ beneficiary.family_members_count }}</td>
+            <tr>
+
+            </tr>
           </table>
   </div>
 
@@ -352,12 +365,56 @@ th {
 
 </p>
 <p>
+  <a href="{% url 'add_family_member' beneficiary.pk %}" class="btn btn-primary">Add Family/Household Member</a> 
+</p>
+<p>
   <a href="{% url 'add_nutricash_beneficiary' beneficiary.pk %}" class="btn btn-primary">Add Nutricash Beneficiary</a> <a href="{% url 'add_sage_beneficiary' beneficiary.pk %}" class="btn btn-primary">Add SAGE Beneficiary</a>   <a href="{% url 'add_finlit_beneficiary' beneficiary.pk %}" class="btn btn-primary">Add Fin Lit Beneficiary</a>
 </p>
+
+
 <p>
   
 </p>
+<div>
+  <h2 class="section-heading">Family/Household Members</h2>
 
+  {% if family_members %}
+  <table class="table-container">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>ID Type</th>
+            <th>ID Number</th>
+            <th>Date of birth</th>
+            <th>Gender</th>
+            <th>Pregnant or Lactating</th>
+            <th>Beneficiary Status</th>
+            <th>Action buttons</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for family_member in family_members %}
+        <tr>
+            <td>{{ family_member.family_member_name }}</td>
+            <td>{{ family_member.ID_type }}</td>
+            <td>{{ family_member.family_member_individual_id }}</td>
+            <td>{{ family_member.family_member_dob }}</td>
+            <td>{{ family_member.family_member_gender }}</td>
+            <td>{{ family_member.pregnant_or_lactating }}</td>
+
+            <td class="action-buttons">
+                <a href="{% url 'family_member_update'  family_member.pk %}" class="update-button">Update</a>
+                <a href="{% url 'family_member_delete'  family_member.pk %}" class="delete-button">Delete</a>
+                <a href="{% url 'family_member_detail'  family_member.pk %}" class="detail-button">View Details</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+  {% else %}
+    <p>No Family memebr beneficiary associated with this beneficiary.</p>
+  {% endif %}
+</div>
 
 <div>
   <h2 class="section-heading">Nutricash Beneficiaries</h2>
@@ -908,40 +965,7 @@ th {
 
 {% load static %}
 
-<script>
-  // Get the beneficiary ID from the HTML data attribute
-  const beneficiaryId = "{{ beneficiary.id }}";
 
-  // Construct the URL with the beneficiary ID
-  const url = `/get_beneficiary_details/${beneficiaryId}/`;
-
-  // Fetch data from the constructed URL
-  fetch(url)
-    .then(response => response.json())
-    .then(data => {
-      const nutricashCount = data.nutricash_details_count;
-      const sageCount = data.sage_details_count;
-      const finlitCount = data.finlit_details_count;
-      
-      // Calculate the total count
-      const totalCount = nutricashCount + sageCount + finlitCount;
-      
-      // Calculate the progress percentage
-      const progressPercentage = (totalCount / 100) * 100;
-      
-      // Update the progress bar
-      const progressBar = document.querySelector('.progress');
-      progressBar.style.width = `${progressPercentage}%`;
-      progressBar.textContent = `${progressPercentage}%`;
-    })
-    .catch(error => {
-      console.error('Error fetching beneficiary details:', error);
-    });
-</script>
-
-<div class="progress-bar">
-  <div class="progress" style="width: 0%;">0%</div>
-</div>
 
 
 
@@ -962,6 +986,7 @@ th {
 
 
 </ul>
+</div>
 </body>
 </html>
 {% endblock %}

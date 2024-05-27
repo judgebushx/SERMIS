@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Member Details</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            color: #444;
+            margin-bottom: 30px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+            font-weight: bold;
+        }
+        td {
+            background-color: #fff;
+        }
+        tr:nth-child(even) td {
+            background-color: #f9f9f9;
+        }
+.btn {
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.btn-primary {
+    background-color: #4CAF50; /* Green */
+}
+
+.btn-danger {
+    background-color: #f44336; /* Red */
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Family Member Details for {{family_member.family_member_name}}</h1>
+        <table>
+            <tr>
+                <th>Profiling Date</th>
+                <td>{{ family_member.profiling_date }}</td>
+                <th>Family/Household Meber name</th>
+                <td>{{ family_member.family_member_name }}</td>
+            </tr>
+            <tr>
+                <th>Nationality</th>
+                <td>{{ family_member.actual_nationality }}</td>
+                <th>Age</th>
+                <td>{{ family_member.family_member_dob }}</td>
+            </tr>
+            <tr>
+                <th>ID Type</th>
+                <td>{{ family_member.ID_type }}</td>
+                <th>ID Number</th>
+                <td>{{ family_member.family_member_individual_id }}</td>
+            </tr>
+            <tr>
+                <th>Group Representative</th>
+                <td>{{ family_member.group_representative }}</td>
+
+                <th>Gender</th>
+                <td>{{ family_member.family_member_gender }}</td>
+            </tr>
+
+
+
+        </table>
+
+</body>
+    </div>
+</body>
+</html>
+{% endblock %}

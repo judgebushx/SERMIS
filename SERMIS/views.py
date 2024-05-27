@@ -1,8 +1,8 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from .models import Group, Beneficiary
 from django.urls import reverse
-from .models import SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, FinlitBeneficiary, FinLitDetails, NutricashBeneficiary, SAGEBeneficiary
-from .forms import GroupForm, BeneficiaryForm, NutricashBeneficiaryForm,  SEMCMentoringCoachingForm, SEMCCommunityParticipationForm, SEMCSBCCForm, SPGFAForm, SPNutricashForm, FinlitBeneficiaryForm, FinlitDetailsForm, SAGEBeneficiaryForm, SPSAGEForm, LPDOnFarmForm, LPDOffFarmForm, LPDNonFarmForm
+from .models import SEMCMentoringCoaching, SEMCCommunityParticipation, SEMCSBCC, SPGFA, SPNutricashDetails, SPSAGEdetails, LPDOnFarm, LPDOffFarm, LPDNonFarm, FinlitBeneficiary, FinLitDetails, NutricashBeneficiary, SAGEBeneficiary, FamilyMember
+from .forms import GroupForm, BeneficiaryForm, FamilyMemberForm, NutricashBeneficiaryForm,  SEMCMentoringCoachingForm, SEMCCommunityParticipationForm, SEMCSBCCForm, SPGFAForm, SPNutricashForm, FinlitBeneficiaryForm, FinlitDetailsForm, SAGEBeneficiaryForm, SPSAGEForm, LPDOnFarmForm, LPDOffFarmForm, LPDNonFarmForm
 from django.apps import apps
 from django.http import JsonResponse
 from django.core.files import File
@@ -111,6 +111,7 @@ def beneficiary_list(request):
 def beneficiary_detail(request, pk):
     beneficiary = get_object_or_404(Beneficiary, pk=pk)
     group = beneficiary.group 
+    family_members = FamilyMember.objects.filter(group_representative=beneficiary)
     # nutricash_beneficiaries = NutricashBeneficiary.objects.filter(group_representative=beneficiary)
     nutricash_beneficiaries = NutricashBeneficiary.objects.filter(group_representative=beneficiary)
 
@@ -134,6 +135,7 @@ def beneficiary_detail(request, pk):
     
     return render(
         request, 'beneficiary_detail.html', {'beneficiary': beneficiary,
+                                            'family_members': family_members,
                                             'semcmentoringcoaching_details': semcmentoringcoaching_details,
                                             'semccommunityparticipation_details': semccommunityparticipation_details,
                                             'semcsbcc_details': semcsbcc_details,
@@ -147,7 +149,7 @@ def beneficiary_detail(request, pk):
                                             # 'nutricashbeneficiary_details': nutricashbeneficiary_details,
                                             'nutricash_beneficiaries': nutricash_beneficiaries,
                                             'sage_beneficiaries': sage_beneficiaries,
-                                            'finlit_beneficiaries': finlit_beneficiaries                                           
+                                            'finlit_beneficiaries': finlit_beneficiaries                                          
 
                                               }
         )
@@ -251,7 +253,76 @@ def get_record_counts(request, beneficiary_id):
 
 
 
+#Family Member details------------------------------------------------------------------------------------
+@login_required
+def add_family_member(request, pk):
+    beneficiary = get_object_or_404(Beneficiary, pk=pk)
+    
+    if request.method == 'POST':
+        form = FamilyMemberForm(request.POST)
+        if form.is_valid():
+            family_member = form.save(commit=False)
+            family_member.group_representative = beneficiary
+            family_member.region = beneficiary
+            family_member.district = beneficiary
+            family_member.settlement = beneficiary
+            family_member.nationality = beneficiary
+            family_member.household_id = beneficiary
+            family_member.actual_region = beneficiary.region
+            family_member.actual_district = beneficiary.district 
+            family_member.actual_settlement= beneficiary.district 
+            family_member.actual_nationality = beneficiary.nationality
+            
+            family_member.save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        initial_data = {
+            'region': beneficiary.region,
+            'district': beneficiary.district,
+            'settlement': beneficiary.settlement,
+            'nationality': beneficiary.nationality,
+            'group_representative': beneficiary
+        }
+        form = FamilyMemberForm(initial=initial_data)
+    
+    return render(request, 'add_family_member.html', {'form': form})
 
+def family_member_detail(request, pk):
+    family_member = get_object_or_404(FamilyMember, pk=pk)
+    
+    return render(request, 'family_member_detail.html', {'family_member': family_member})
+
+def family_member_delete(request, pk):
+    family_member = get_object_or_404(FamilyMember, pk=pk)
+
+    if request.method == 'POST':
+        # Get the related beneficiary's pk
+        beneficiary_pk = family_member.group_representative.pk
+
+        # Delete the family_member
+        family_member.delete()
+
+        # Redirect to beneficiary_detail with the beneficiary's pk
+        return redirect('beneficiary_detail', pk=beneficiary_pk)
+    else:
+        # Display the confirmation page
+
+        return render(request, 'family_member_delete.html', {'family_member': family_member})
+
+
+@login_required
+def family_member_update(request, pk):
+    family_member = get_object_or_404(FamilyMember, pk=pk)
+    beneficiary = family_member.group_representative 
+    
+    if request.method == 'POST':
+        form = FamilyMemberForm(request.POST, instance=family_member)
+        if form.is_valid():
+            form.save()
+            return redirect('beneficiary_detail', pk=beneficiary.pk)
+    else:
+        form = FamilyMemberForm(instance=family_member)
+    return render(request, 'add_family_member.html', {'form': form})
 
 
 
@@ -617,7 +688,7 @@ def spnutricash_create(request, pk):
             spnutricash.actual_district = beneficiary.district  # Set actual_district
             spnutricash.actual_settlement = beneficiary.settlement  # Set actual_settlement
             spnutricash.actual_ID_type = nutricash_beneficiary.ID_type  # Set actual_ID_type
-            spnutricash.actual_ID_number = nutricash_beneficiary.ID_number  # Set actual_ID_number
+            spnutricash.actual_ID_number = nutricash_beneficiary.candidate_individual_id  # Set actual_ID_number
 
             spnutricash.save()
             return redirect('nutricashbeneficiary_detail', pk=nutricash_beneficiary.pk)

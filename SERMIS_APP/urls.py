@@ -40,6 +40,14 @@ urlpatterns = [
     path('beneficiaries/<int:pk>/update/', views.beneficiary_update, name='beneficiary_update'),
     path('beneficiaries/<int:pk>/delete/', views.beneficiary_delete, name='beneficiary_delete'),
 
+
+    path('beneficiaries/<pk>/add-family-member/', views.add_family_member, name='add_family_member'),
+    path('familymember/<int:pk>/update/', views.family_member_update, name='family_member_update'),
+    path('familymember/delete/<int:pk>/', views.family_member_delete, name='family_member_delete'),
+    path('familymember/<int:pk>/', views.family_member_detail, name='family_member_detail'),
+
+
+
     path('beneficiaries/<int:pk>/semc_mentoring_coaching/create/', views.semc_mentoring_coaching_create, name='semc_mentoring_coaching_create'),
     path('semc_mentoring_coaching/<int:pk>/update/', views.semc_mentoring_coaching_update, name='semc_mentoring_coaching_update'),
     path('semc_mentoring_coaching/<int:pk>/delete/', views.semc_mentoring_coaching_delete, name='semc_mentoring_coaching_delete'),
